@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPPW | Supabase Live Dashboard</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="orb"></div><div class="orb-2"></div><div class="orb-3"></div>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <div class="brand-mark"><img src="assets/logo-nppw.svg" alt="NPPW logo" /></div>
+        <div class="brand-title">
+          <h1>NPPW Live Dashboard</h1>
+          <p>Supabase-connected operations tracker with localStorage fallback for demos.</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="index.html">System</a><a href="training.html">Training</a><a href="roi.html">ROI</a><a href="print.html">Print View</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="card pad-lg reveal">
+        <span class="eyebrow">Live dashboard version</span>
+        <h2>Track work orders, verification status, and automation exceptions.</h2>
+        <p>This page can run fully in browser using demo data, or connect to Supabase using your project URL and anon key. It is designed for Netlify deployment and VA team demonstration.</p>
+        <div class="hero-actions"><a class="btn primary" href="#tracker">Open Tracker</a><a class="btn" href="supabase-schema.sql">Open SQL Schema</a></div>
+      </div>
+      <div class="card pad reveal">
+        <div class="stat-strip">
+          <div class="stat-box"><strong id="statTotal">0</strong><span>Total tickets</span></div>
+          <div class="stat-box"><strong id="statVerified">0</strong><span>Verified</span></div>
+          <div class="stat-box"><strong id="statEscalated">0</strong><span>Escalated</span></div>
+          <div class="stat-box"><strong id="statExceptions">0</strong><span>Automation exceptions</span></div>
+        </div>
+        <div class="supabase-status" id="connectionStatus">Running in local demo mode.</div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="tracker">
+      <div class="section-head"><div><h3>Operations tracker</h3><p>Add sample work orders, verify them, and sync to Supabase when configured.</p></div></div>
+      <div class="dashboard-grid">
+        <aside class="card side-panel">
+          <span class="kicker">Supabase settings</span>
+          <label class="field">Supabase URL<input id="supabaseUrl" placeholder="https://xxxx.supabase.co" /></label><br>
+          <label class="field">Anon Key<input id="supabaseKey" placeholder="public anon key" /></label>
+          <div class="controls"><button class="btn primary" id="connectBtn">Connect</button><button class="btn" id="localModeBtn">Local demo</button></div>
+          <div class="supabase-status">Create the table using <strong>supabase-schema.sql</strong>, then paste your public anon key here. Do not paste service role keys.</div>
+        </aside>
+        <main class="card pad">
+          <span class="kicker">Add work order</span>
+          <div class="form-grid">
+            <label class="field">Store / Client<input id="client" value="Costco Location 118" /></label>
+            <label class="field">Service<select id="service"><option>Parking Lot Sweeping</option><option>Power Washing</option><option>Landscaping</option><option>Portering</option><option>Delivery</option></select></label>
+            <label class="field">Time on Site<input id="timeOnSite" type="number" value="75" /></label>
+            <label class="field">Photos<input id="photoCount" type="number" value="4" /></label>
+            <label class="field">Status<select id="status"><option>Pending Verification</option><option>Verified</option><option>Escalated</option><option>Automation Exception</option></select></label>
+            <label class="field">Assigned VA<input id="assignedVa" value="VA Operations Support" /></label>
+          </div>
+          <div class="controls"><button class="btn primary" id="addTicketBtn">Add ticket</button><button class="btn" id="seedBtn">Load sample queue</button><button class="btn ghost" id="clearBtn">Clear local data</button></div>
+          <div class="mini-toolbar"><input class="input-inline" id="search" placeholder="Search tickets..." /><select class="input-inline" id="filter"><option>All</option><option>Pending Verification</option><option>Verified</option><option>Escalated</option><option>Automation Exception</option></select></div>
+          <div class="data-list" id="ticketList"></div>
+        </main>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head"><div><h3>Supabase schema</h3><p>Use this SQL in Supabase SQL Editor before connecting the dashboard.</p></div></div>
+      <pre class="codebox">create table if not exists public.nppw_work_orders (
+  id uuid primary key default gen_random_uuid(),
+  client text not null,
+  service text not null,
+  time_on_site integer default 0,
+  photo_count integer default 0,
+  status text not null default 'Pending Verification',
+  assigned_va text,
+  created_at timestamp with time zone default now()
+);</pre>
+    </section>
+  </div>
+  <script src="assets/app.js"></script>
+  <script>
+    let sb = null;
+    let tickets = JSON.parse(localStorage.getItem('nppwTickets') || '[]');
+    const store = () => localStorage.setItem('nppwTickets', JSON.stringify(tickets));
+    const el = id => document.getElementById(id);
+    function stats(){
+      el('statTotal').textContent = tickets.length;
+      el('statVerified').textContent = tickets.filter(t=>t.status==='Verified').length;
+      el('statEscalated').textContent = tickets.filter(t=>t.status==='Escalated').length;
+      el('statExceptions').textContent = tickets.filter(t=>t.status==='Automation Exception').length;
+    }
+    function render(){
+      const q = el('search').value.toLowerCase();
+      const f = el('filter').value;
+      const list = tickets.filter(t => (f==='All'||t.status===f) && JSON.stringify(t).toLowerCase().includes(q));
+      el('ticketList').innerHTML = list.map(t => `<div class="data-row"><div><strong>${t.client}</strong><small>${t.service} • ${t.assigned_va || ''}</small></div><div><small>Time</small><strong>${t.time_on_site} min</strong></div><div><small>Photos</small><strong>${t.photo_count}</strong></div><div class="status-row"><span class="badge ${t.status==='Verified'?'success':t.status==='Escalated'?'danger':t.status==='Automation Exception'?'warn':''}">${t.status}</span></div></div>`).join('') || '<div class="data-card">No tickets yet.</div>';
+      stats();
+    }
+    function newTicket(){return {client:el('client').value,service:el('service').value,time_on_site:+el('timeOnSite').value,photo_count:+el('photoCount').value,status:el('status').value,assigned_va:el('assignedVa').value,created_at:new Date().toISOString()};}
+    async function addTicket(){
+      const ticket = newTicket();
+      if(sb){
+        const {error} = await sb.from('nppw_work_orders').insert({client:ticket.client,service:ticket.service,time_on_site:ticket.time_on_site,photo_count:ticket.photo_count,status:ticket.status,assigned_va:ticket.assigned_va});
+        if(error){ alert(error.message); return; }
+        await loadRemote();
+      } else { tickets.unshift(ticket); store(); render(); }
+    }
+    async function loadRemote(){
+      if(!sb) return;
+      const {data,error} = await sb.from('nppw_work_orders').select('*').order('created_at',{ascending:false});
+      if(error){ el('connectionStatus').textContent = error.message; return; }
+      tickets = (data || []).map(x => ({client:x.client,service:x.service,time_on_site:x.time_on_site,photo_count:x.photo_count,status:x.status,assigned_va:x.assigned_va,created_at:x.created_at}));
+      render();
+    }
+    el('connectBtn').addEventListener('click', async()=>{
+      const url=el('supabaseUrl').value.trim(), key=el('supabaseKey').value.trim();
+      if(!url || !key){ alert('Enter Supabase URL and anon key.'); return; }
+      sb = supabase.createClient(url,key);
+      localStorage.setItem('nppwSupabaseUrl',url); localStorage.setItem('nppwSupabaseKey',key);
+      el('connectionStatus').textContent='Connected to Supabase. Loading remote tickets...';
+      await loadRemote();
+    });
+    el('localModeBtn').addEventListener('click',()=>{ sb=null; el('connectionStatus').textContent='Running in local demo mode.'; render(); });
+    el('addTicketBtn').addEventListener('click',addTicket);
+    el('seedBtn').addEventListener('click',()=>{ tickets=[
+      {client:'Walmart Store 4521',service:'Parking Lot Sweeping',time_on_site:92,photo_count:4,status:'Verified',assigned_va:'VA Verification Support'},
+      {client:'Costco Location 118',service:'Power Washing',time_on_site:28,photo_count:1,status:'Escalated',assigned_va:'VA Verification Support'},
+      {client:'Ruby Tuesday Site 021',service:'Delivery',time_on_site:0,photo_count:0,status:'Automation Exception',assigned_va:'VA Intake Support'},
+      {client:'Retail Center 204',service:'Landscaping',time_on_site:75,photo_count:3,status:'Pending Verification',assigned_va:'VA Operations Support'}
+    ]; store(); render(); });
+    el('clearBtn').addEventListener('click',()=>{tickets=[];store();render();});
+    el('search').addEventListener('input',render); el('filter').addEventListener('change',render);
+    el('supabaseUrl').value=localStorage.getItem('nppwSupabaseUrl')||''; el('supabaseKey').value=localStorage.getItem('nppwSupabaseKey')||'';
+    render();
+  </script>
+</body>
+</html>
