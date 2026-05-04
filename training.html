@@ -1,134 +1,223 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NPPW | VA Training Program</title>
-  <link rel="stylesheet" href="assets/style.css" />
+  <title>NPPW Training Program | VA Operations, Work Order & Data Support</title>
+  <style>
+    :root{
+      --bg:#08111f; --bg2:#0d1a30; --card:rgba(255,255,255,.08); --card2:rgba(255,255,255,.05); --line:rgba(255,255,255,.12);
+      --text:#f4f8fc; --muted:#b9cbdd; --brand:#29d3c1; --brand2:#2aa0ff; --accent:#8e6bff; --good:#63dd9e; --warn:#ffd36d; --bad:#ff8b8b; --radius:26px; --shadow:0 24px 70px rgba(0,0,0,.35)
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0; color:var(--text); font-family:Inter,Segoe UI,Arial,sans-serif; min-height:100vh; background:radial-gradient(circle at 10% 10%, rgba(41,211,193,.16), transparent 0 25%), radial-gradient(circle at 92% 12%, rgba(42,160,255,.18), transparent 0 24%), radial-gradient(circle at 50% 95%, rgba(142,107,255,.16), transparent 0 24%), linear-gradient(135deg,var(--bg),var(--bg2) 45%,#0a1526); overflow-x:hidden}
+    body::before{content:""; position:fixed; inset:0; pointer-events:none; opacity:.24; background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size:38px 38px; mask-image:linear-gradient(to bottom, rgba(0,0,0,.8), transparent 82%)}
+    .page{position:relative; z-index:1; width:min(1320px, calc(100% - 24px)); margin:auto; padding:18px 0 54px}
+    .topbar{position:sticky; top:12px; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 18px; border:1px solid var(--line); border-radius:22px; background:rgba(4,10,20,.72); backdrop-filter:blur(18px); box-shadow:var(--shadow)}
+    .brand{display:flex; align-items:center; gap:14px; min-width:0}.brand-mark{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg, rgba(41,211,193,.22), rgba(42,160,255,.18));border:1px solid rgba(255,255,255,.14)}.brand-mark svg{width:42px;height:42px}.brand-text h1{margin:0;font-size:1rem;letter-spacing:.08em;text-transform:uppercase}.brand-text p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+    .nav{display:flex;flex-wrap:wrap;gap:10px}.nav a,.btn,.tab-btn{color:var(--text);text-decoration:none;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:.22s ease}.nav a:hover,.btn:hover,.tab-btn:hover{transform:translateY(-2px);border-color:rgba(41,211,193,.36);background:rgba(255,255,255,.1)}.btn.primary,.tab-btn.active{background:linear-gradient(135deg, rgba(41,211,193,.24), rgba(42,160,255,.18)); border-color:rgba(41,211,193,.35)}
+    .hero{display:grid;grid-template-columns:1.12fr .88fr;gap:18px;margin-top:20px}.card{background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}.pad-xl{padding:36px}.pad{padding:24px}.pad-sm{padding:18px}
+    .eyebrow{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:.82rem; letter-spacing:.05em; text-transform:uppercase; border:1px solid rgba(41,211,193,.25); background:rgba(41,211,193,.1); color:#dffcf8}
+    .hero h2{font-size:clamp(2.1rem,3.6vw,4rem);line-height:1;margin:16px 0 14px;letter-spacing:-.04em}.hero p{font-size:1.02rem;color:var(--muted);line-height:1.68}.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.metric{padding:18px;min-height:146px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.05)}.metric strong{display:block;font-size:1.95rem;margin-bottom:8px}
+    .section{margin-top:22px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin-bottom:14px}.section-head p{margin:6px 0 0;color:var(--muted)}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .module,.day-card,.focus-card,.assess-card,.system-card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:22px;padding:18px;transition:.22s ease;cursor:pointer}.module:hover,.day-card:hover,.focus-card:hover,.assess-card:hover,.system-card:hover{transform:translateY(-3px);border-color:rgba(41,211,193,.3);background:rgba(255,255,255,.08)}
+    .tag{display:inline-block;margin-bottom:10px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:.78rem;color:#ddf1ff}
+    .inspector,.summary-box{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:22px;padding:18px}.summary-box h4,.inspector h4{margin:0 0 10px}
+    .progress{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.progress > b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px;transition:width .35s ease}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}.hidden{display:none!important}
+    .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;position:relative}.pipeline::before{content:"";position:absolute;left:2%;right:2%;top:50%;height:3px;background:linear-gradient(90deg, rgba(41,211,193,.35), rgba(42,160,255,.35), rgba(142,107,255,.35));z-index:0;border-radius:999px}.stage{position:relative;z-index:1;min-height:190px;padding:18px;border-radius:24px;border:1px solid var(--line);background:rgba(4,12,24,.88)}.stage-num{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;font-weight:800;margin-bottom:12px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg, rgba(41,211,193,.24), rgba(42,160,255,.18))}.status-pill{position:absolute;left:16px;right:16px;bottom:16px;text-align:center;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06);padding:8px 10px;font-size:.8rem;color:#dcecf8}
+    .question{display:grid;gap:10px}.question select{background:rgba(3,10,18,.75);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:12px 13px;outline:none}.console{background:#020913;border:1px solid var(--line);border-radius:18px;min-height:260px;padding:16px;white-space:pre-wrap;font:.9rem/1.58 ui-monospace,SFMono-Regular,Consolas,monospace;color:#d8e9f7}
+    .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.badge{display:inline-flex;padding:6px 10px;border-radius:999px;font-size:.8rem;border:1px solid var(--line);background:rgba(255,255,255,.05)}.badge.good{background:rgba(99,221,158,.13);color:#e5fff0;border-color:rgba(99,221,158,.2)}
+    .footer{margin-top:28px;padding:22px;border-radius:24px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--muted)}
+    @media(max-width:1180px){.hero,.grid-4,.grid-3,.grid-2,.pipeline{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.pipeline::before{display:none}}
+    @media(max-width:760px){.page{width:min(100% - 16px,1320px)}.topbar{flex-direction:column;align-items:flex-start}.pad-xl,.pad{padding:18px}.metric-grid{grid-template-columns:1fr}.hero h2{font-size:2.35rem}}
+  </style>
 </head>
 <body>
-  <div class="orb"></div><div class="orb-2"></div><div class="orb-3"></div>
-  <div class="page">
+  <main class="page">
     <header class="topbar">
-      <div class="brand-wrap">
-        <div class="brand-mark"><img src="assets/logo-nppw.svg" alt="NPPW logo" /></div>
-        <div class="brand-title">
-          <h1>NPPW Training Program</h1>
-          <p>Visual onboarding program for VA operations, compliance, reporting, and future growth support.</p>
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g2" x1="0" y1="0" x2="64" y2="64"><stop stop-color="#29D3C1"/><stop offset="1" stop-color="#2AA0FF"/></linearGradient></defs>
+            <rect x="6" y="6" width="52" height="52" rx="16" fill="url(#g2)" fill-opacity=".18" stroke="url(#g2)"/>
+            <path d="M18 42V22h4.2l8.4 11V22H35v20h-4.1L22.4 30.8V42H18ZM39 42V22h11.2c4.9 0 7.8 2.4 7.8 6.7 0 4.3-2.9 6.8-7.8 6.8h-6V42H39Zm5.2-10.4h5.4c2.1 0 3.3-1 3.3-2.9 0-1.8-1.2-2.8-3.3-2.8h-5.4v5.7Z" fill="url(#g2)"/>
+          </svg>
         </div>
+        <div class="brand-text"><h1>NPPW Training Program</h1><p>Virtual Assistant – Operations, Work Order & Data Support for NPPW</p></div>
       </div>
-      <nav class="nav">
-        <a href="index.html">System Workflow</a>
-        <a href="roi.html">ROI</a>
-        <a href="print.html">Print View</a>
-      </nav>
+      <nav class="nav"><a href="nppw_system_visual_workflow.html">System Workflow</a><a href="#modules">Modules</a><a href="#focus">Focused Visual Training</a><a href="#assessment">Assessment</a></nav>
     </header>
 
     <section class="hero">
-      <div class="card pad-lg reveal">
-        <span class="eyebrow">In-depth training design</span>
-        <h2>Training that explains not only what the VA does, but how the process works visually.</h2>
-        <p>This page is optimized for leadership presentation and trainee onboarding. It puts special emphasis on <strong>Vendor Verification & Compliance</strong>, <strong>System Ecosystem Awareness</strong>, and <strong>Marketing & Branding Support</strong>.</p>
+      <div class="card pad-xl">
+        <span class="eyebrow">Separate training page</span>
+        <h2>Visual training program with detailed modules, interactive roadmap, and focused workflow learning.</h2>
+        <p>This page is designed for training and leadership presentation. It translates the NPPW operating workflow into a clear learning system so the VA understands not just the tasks, but <strong>why each step matters</strong>, <strong>where each system fits</strong>, and <strong>how to make the right decision</strong>.</p>
+        <div class="badge-row"><span class="badge good">Vendor Verification & Compliance</span><span class="badge good">System Ecosystem Awareness</span><span class="badge good">Marketing & Branding Support</span></div>
       </div>
-      <div class="card pad reveal">
+      <div class="card pad">
         <div class="metric-grid">
-          <div class="metric"><strong><span data-counter="9" class="counter">0</span> modules</strong><span>Core skill blocks covering operations, compliance, communication, systems, and growth support.</span></div>
-          <div class="metric"><strong><span data-counter="15" class="counter">0</span> days</strong><span>Structured training path from orientation to sign-off.</span></div>
-          <div class="metric"><strong><span data-counter="3" class="counter">0</span> focus areas</strong><span>Modules 4, 7, and 9 are visually expanded for easier leadership understanding.</span></div>
-          <div class="metric"><strong><span data-counter="100" data-suffix="%" class="counter">0</span></strong><span>Designed for SOP discipline and demonstration consistency.</span></div>
+          <div class="metric"><strong>9 modules</strong><p>Structured learning path covering operations, compliance, communication, and growth support.</p></div>
+          <div class="metric"><strong>15-day roadmap</strong><p>A guided path from orientation to readiness sign-off.</p></div>
+          <div class="metric"><strong>3 visual focus areas</strong><p>Modules 4, 7, and 9 are visually expanded for clarity.</p></div>
+          <div class="metric"><strong>Interactive assessment</strong><p>The trainee can answer scenarios and see readiness results.</p></div>
         </div>
       </div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-head"><div><h3>Core training modules</h3><p>All modules are still included, with improved visualization and stronger explanation.</p></div></div>
-      <div class="accordion">
-        <details open><summary>1. Attention to Detail & Accuracy Training</summary><p>Critical foundation that teaches the VA how to spot errors before they affect operations.</p><ul><li>Data accuracy drills and error spotting</li><li>Before/after validation exercises</li><li>Double-check protocol system</li><li>Real work order review simulations</li></ul></details>
-        <details><summary>2. ServiceChannel Work Order Management Training</summary><p>Explains the work order lifecycle and how the VA keeps tickets accurate.</p><ul><li>Create → dispatch → complete → close workflow</li><li>Vendor assignment logic and position 1 vendor awareness</li><li>Ticket updates and documentation discipline</li><li>Photo and timestamp verification rules</li><li>Handling missing check-ins or incomplete jobs</li></ul></details>
-        <details><summary>3. Data Transfer & Multi-System Operations Training</summary><p>Teaches clean data movement across tools to avoid rework and duplicates.</p><ul><li>Cross-system data mapping</li><li>Preventing duplicate entries</li><li>SOP-based data transfer flow</li><li>System role clarity</li></ul></details>
-        <details><summary>4. Vendor Verification & Compliance</summary><p>High-priority module focused on proof validation, red flags, and escalation judgment.</p><ul><li>Valid vs invalid job completion</li><li>Time-on-site validation rules</li><li>Photo compliance checks</li><li>Red flag identification</li><li>Escalation workflow for non-compliance</li></ul></details>
-        <details><summary>5. Communication & Phone Operations Training</summary><p>Prepares the VA to handle incoming calls and document outcomes professionally.</p><ul><li>Professional call handling scripts</li><li>Ticket update communication format</li><li>Vendor communication standards</li><li>Escalation language and protocols</li><li>Logging phone updates into systems</li></ul></details>
-        <details><summary>6. Checklist & SOP Discipline Training</summary><p>Ensures no-step-skipping behavior and strong process control.</p><ul><li>Step-by-step checklist execution</li><li>Task completion verification</li><li>No-step-skipping discipline system</li><li>Standard operating workflow practice</li></ul></details>
-        <details><summary>7. System Ecosystem Awareness Training</summary><p>Builds understanding of how ServiceChannel, Jobber, Acuity, and internal tools connect.</p><ul><li>System purpose mapping</li><li>Data flow between platforms</li><li>Risk awareness such as Acuity double-booking limitations</li><li>System boundaries and usage rules</li></ul></details>
-        <details><summary>8. Reporting & Documentation Training</summary><p>Provides visibility for leadership and supports issue tracking.</p><ul><li>Daily and weekly reporting structure</li><li>Issue tracking logs</li><li>Performance summary creation</li><li>Escalation documentation standards</li></ul></details>
-        <details><summary>9. Marketing & Branding Support Training</summary><p>Introduces simple growth support work for future expansion.</p><ul><li>Basic SEO principles</li><li>Google Business Profile updates</li><li>Service description consistency</li><li>Simple content updates</li><li>Brand tone alignment</li></ul></details>
-      </div>
+    <section class="section" id="modules">
+      <div class="section-head"><div><h3>Core training modules</h3><p>Click any module to inspect its training content and operating purpose.</p></div></div>
+      <div class="grid-3" id="moduleGrid"></div>
+      <div class="inspector" id="moduleInspector" style="margin-top:16px;"><h4>Module inspector</h4><p>Click a module above to show the module objective, training items, and expected outcome.</p></div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-head"><div><h3>Visual module focus • Vendor Verification & Compliance</h3><p>How the VA learns the exact review path.</p></div></div>
-      <div class="card pad">
-        <div class="pipeline">
-          <div class="stage success"><div class="stage-num">1</div><h4>Open ticket</h4><p>Review work order number, site, vendor, and service date.</p><span class="status">Context check</span></div>
-          <div class="stage success"><div class="stage-num">2</div><h4>Check attendance</h4><p>Verify check-in and check-out were recorded correctly.</p><span class="status">Presence proof</span></div>
-          <div class="stage warn"><div class="stage-num">3</div><h4>Review duration</h4><p>Compare time on site against expected service standards.</p><span class="status">Time validation</span></div>
-          <div class="stage success"><div class="stage-num">4</div><h4>Review photos</h4><p>Check count, quality, and relevance of proof images.</p><span class="status">Photo compliance</span></div>
-          <div class="stage danger"><div class="stage-num">5</div><h4>Decision / escalate</h4><p>Mark verified, needs clarification, or escalate non-compliance.</p><span class="status">Final judgment</span></div>
-          <div class="stage success"><div class="stage-num">6</div><h4>Document result</h4><p>Log into reporting tracker for specialist and leadership visibility.</p><span class="status">Reporting</span></div>
+    <section class="section">
+      <div class="section-head"><div><h3>15-day training roadmap</h3><p>Click days to mark them complete and update the readiness progress bar.</p></div><div><span class="badge" id="progressLabel">0 / 15 complete</span></div></div>
+      <div class="grid-3" id="roadmapGrid"></div>
+      <div class="card pad-sm" style="margin-top:16px;"><h4 style="margin-bottom:10px;">Training progress</h4><div class="progress"><b id="progressFill"></b></div></div>
+    </section>
+
+    <section class="section" id="focus">
+      <div class="section-head"><div><h3>Focused visual training</h3><p>These three modules are emphasized because they are the most important for NPPW’s real workflow.</p></div></div>
+      <div class="card pad" id="focusTabs">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="verification">4. Vendor Verification & Compliance</button>
+          <button class="tab-btn" data-tab="ecosystem">7. System Ecosystem Awareness</button>
+          <button class="tab-btn" data-tab="marketing">9. Marketing & Branding Support</button>
         </div>
-      </div>
-      <div class="grid-2" style="margin-top:16px;">
-        <div class="card pad-sm"><h4>Red flags trainees must learn</h4><ul><li>No check-in or no check-out</li><li>Suspiciously short time on site</li><li>Missing, duplicated, or unclear photos</li><li>Notes that do not explain the service outcome</li><li>Any mismatch between proof and expected work</li></ul></div>
-        <div class="card pad-sm"><h4>What “good review” looks like</h4><ul><li>Follows checklist without skipping steps</li><li>Uses standards consistently across tickets</li><li>Documents why a ticket passed or failed</li><li>Escalates quickly with the right language</li><li>Updates logs so leadership can see trends</li></ul></div>
-      </div>
-    </section>
-
-    <section class="section reveal">
-      <div class="section-head"><div><h3>Visual module focus • System Ecosystem Awareness</h3><p>How the VA understands multiple platforms as one operating system.</p></div></div>
-      <div class="grid-4">
-        <div class="tool-card"><span class="kicker">System 1</span><h4>Acuity</h4><p>Booking intake source. Good for capturing requests, but it needs a validation gate to prevent errors and overbooking issues.</p></div>
-        <div class="tool-card"><span class="kicker">System 2</span><h4>Zapier</h4><p>Automation connector. Moves validated information between systems through mapped fields and rules.</p></div>
-        <div class="tool-card"><span class="kicker">System 3</span><h4>Jobber</h4><p>Operational scheduling and invoicing-prep environment. This is where downstream operations gain visibility.</p></div>
-        <div class="tool-card"><span class="kicker">System 4</span><h4>ServiceChannel + Sheets</h4><p>ServiceChannel manages proof review, while Sheets keeps reporting visible for leadership and issue tracking.</p></div>
-      </div>
-      <div class="card pad" style="margin-top:16px;">
-        <div class="swimlane">
-          <div class="lane-title">Awareness outcome</div>
-          <div class="lane-steps">
-            <div class="node"><h4>Know each system’s purpose</h4><p>The trainee learns where work starts, where it gets reviewed, and where it gets reported.</p></div>
-            <div class="node"><h4>Avoid duplicate work</h4><p>The trainee learns what should not be re-entered manually without reason.</p></div>
-            <div class="node"><h4>Protect handoff quality</h4><p>The trainee understands how errors in one tool affect the next tool.</p></div>
-            <div class="node"><h4>Support leadership visibility</h4><p>The trainee knows how reporting turns system activity into management insight.</p></div>
+        <div class="tab-panel" data-panel="verification" style="margin-top:16px;">
+          <div class="pipeline">
+            <div class="stage"><div class="stage-num">1</div><h4>Open work order</h4><p>Confirm ticket, site, vendor, and service date.</p><div class="status-pill">Context</div></div>
+            <div class="stage"><div class="stage-num">2</div><h4>Check attendance</h4><p>Review check-in and check-out presence proof.</p><div class="status-pill">Presence proof</div></div>
+            <div class="stage"><div class="stage-num">3</div><h4>Review time on site</h4><p>Compare actual duration against expected service standard.</p><div class="status-pill">Time validation</div></div>
+            <div class="stage"><div class="stage-num">4</div><h4>Review photos</h4><p>Confirm photo count, quality, and relevance.</p><div class="status-pill">Photo compliance</div></div>
+            <div class="stage"><div class="stage-num">5</div><h4>Decide outcome</h4><p>Verified, clarification, or escalation.</p><div class="status-pill">Final judgment</div></div>
           </div>
+          <div class="summary-box" style="margin-top:16px;"><h4>Why this is critical</h4><p>The VA is not only entering data. The VA is protecting service quality and compliance by spotting invalid completion, too-short service time, missing proof, and incomplete documentation.</p></div>
+        </div>
+        <div class="tab-panel hidden" data-panel="ecosystem" style="margin-top:16px;">
+          <div class="grid-4">
+            <div class="system-card"><span class="tag">System 1</span><h4>ServiceChannel</h4><p>Operations and proof-review environment.</p></div>
+            <div class="system-card"><span class="tag">System 2</span><h4>Jobber</h4><p>Job execution visibility, scheduling, invoicing preparation.</p></div>
+            <div class="system-card"><span class="tag">System 3</span><h4>Acuity</h4><p>Booking intake source, but vulnerable to incomplete data or booking limitations.</p></div>
+            <div class="system-card"><span class="tag">System 4</span><h4>Internal tools</h4><p>Used for Google Sheets logs, dashboards, and escalations.</p></div>
+          </div>
+          <div class="summary-box" style="margin-top:16px;"><h4>Why this is needed</h4><p>The VA must understand what belongs in each platform, how data moves between platforms, and how a mistake in one system affects the next. This prevents duplicate work and improves clarity.</p></div>
+        </div>
+        <div class="tab-panel hidden" data-panel="marketing" style="margin-top:16px;">
+          <div class="grid-4">
+            <div class="focus-card"><span class="tag">Step 1</span><h4>SEO basics</h4><p>Use clear service and location wording for Georgia and North Carolina visibility.</p></div>
+            <div class="focus-card"><span class="tag">Step 2</span><h4>Google Business Profile</h4><p>Update categories, photos, service areas, and descriptions.</p></div>
+            <div class="focus-card"><span class="tag">Step 3</span><h4>Service consistency</h4><p>Keep business descriptions aligned across website and profiles.</p></div>
+            <div class="focus-card"><span class="tag">Step 4</span><h4>Brand tone alignment</h4><p>Ensure changes follow a professional, consistent tone.</p></div>
+          </div>
+          <div class="summary-box" style="margin-top:16px;"><h4>Why this is needed</h4><p>After operations support stabilizes, the VA can help NPPW pop up more in searches by supporting local SEO basics, Google Business Profile updates, and content consistency.</p></div>
         </div>
       </div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-head"><div><h3>Visual module focus • Marketing & Branding Support</h3><p>Future-state training for expansion and visibility work.</p></div></div>
-      <div class="card pad">
-        <div class="timeline">
-          <div class="phase"><strong>Step 1</strong><h4>Audit online presence</h4><p>Review service descriptions, website wording, and current business listings.</p></div>
-          <div class="phase"><strong>Step 2</strong><h4>Check consistency</h4><p>Align how power washing, landscaping, portering, and sweeping are described.</p></div>
-          <div class="phase"><strong>Step 3</strong><h4>Apply local SEO basics</h4><p>Use service-based and location-based keywords for growth markets.</p></div>
-          <div class="phase"><strong>Step 4</strong><h4>Update GBP</h4><p>Maintain Google Business Profile details, service areas, and photos.</p></div>
-          <div class="phase"><strong>Step 5</strong><h4>Document changes</h4><p>Track what was updated, what needs approval, and what opportunities remain.</p></div>
+    <section class="section" id="assessment">
+      <div class="section-head"><div><h3>Interactive assessment</h3><p>Use this quiz to demonstrate readiness and decision-making quality.</p></div></div>
+      <div class="grid-2">
+        <div class="card pad">
+          <div class="question">
+            <label>1. A parking lot sweeping ticket shows only 30 minutes on site when the normal expectation is 1–1.5 hours. What should the VA do?
+              <select id="q1"><option value="0">Mark it completed</option><option value="1">Flag it for clarification or escalation</option><option value="0">Ignore the time if notes exist</option></select>
+            </label>
+            <label>2. A new booking comes from Acuity without a phone number. What is the best next step?
+              <select id="q2"><option value="1">Pause automation and route it to an exception queue</option><option value="0">Send it straight to Jobber</option><option value="0">Delete the request</option></select>
+            </label>
+            <label>3. ServiceChannel proof has only one unclear photo and no check-out. What should the VA do?
+              <select id="q3"><option value="0">Mark it completed if the vendor said it was done</option><option value="1">Escalate due to insufficient proof</option><option value="0">Ignore the missing check-out</option></select>
+            </label>
+            <label>4. Google Sheets reporting fails after the job is verified. What is the correct fallback?
+              <select id="q4"><option value="1">Create a backup log and notify the process owner</option><option value="0">Do nothing and wait</option><option value="0">Delete the verification result</option></select>
+            </label>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;"><button class="btn primary" id="gradeQuiz">Grade Assessment</button><button class="btn" id="resetQuiz">Reset</button></div>
+        </div>
+        <div class="card pad">
+          <div class="console" id="quizConsole">Assessment ready. Click “Grade Assessment” to see results.</div>
+          <div class="summary-box" id="quizResult" style="margin-top:14px;"><h4>Readiness result</h4><p>The result will appear here after grading the assessment.</p></div>
         </div>
       </div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-head"><div><h3>15-day training roadmap</h3><p>Simple but deep enough for leadership review and internal execution.</p></div></div>
-      <div class="week-grid">
-        <div class="week-card"><h4>Week 1 • Foundation</h4><p class="note">Context, systems, accuracy, and SOP discipline.</p><div class="day-item"><strong>Day 1</strong><span>NPPW business model, services, recurring work order environment, and VA role overview.</span></div><div class="day-item"><strong>Day 2</strong><span>Attention to detail drills and double-check discipline.</span></div><div class="day-item"><strong>Day 3</strong><span>System ecosystem overview: Acuity, Zapier, Jobber, ServiceChannel, Google Sheets.</span></div><div class="day-item"><strong>Day 4</strong><span>Work order lifecycle and documentation standards.</span></div><div class="day-item"><strong>Day 5</strong><span>Checklist and SOP workshop with graded exercises.</span></div></div>
-        <div class="week-card"><h4>Week 2 • Operations & compliance</h4><p class="note">Practical queue review and exception handling.</p><div class="day-item"><strong>Day 6</strong><span>ServiceChannel work order management and ticket updates.</span></div><div class="day-item"><strong>Day 7</strong><span>Photo / timestamp verification and proof logic.</span></div><div class="day-item"><strong>Day 8</strong><span>Vendor verification and compliance review drills.</span></div><div class="day-item"><strong>Day 9</strong><span>Escalation workflow for invalid or incomplete proof.</span></div><div class="day-item"><strong>Day 10</strong><span>Phone communication and documentation training.</span></div></div>
-        <div class="week-card"><h4>Week 3 • Data flow & readiness</h4><p class="note">Automation flow, reporting, simulation, and sign-off.</p><div class="day-item"><strong>Day 11</strong><span>Cross-system data mapping and Acuity → Jobber flow practice.</span></div><div class="day-item"><strong>Day 12</strong><span>Google Sheets reporting, issue logs, and leadership summaries.</span></div><div class="day-item"><strong>Day 13</strong><span>End-to-end scenario simulation with pass/fail review.</span></div><div class="day-item"><strong>Day 14</strong><span>Shadowing or supervised live-practice queue.</span></div><div class="day-item"><strong>Day 15</strong><span>Final assessment, QA calibration, and readiness sign-off.</span></div></div>
+    <section class="section">
+      <div class="section-head"><div><h3>Leadership readiness view</h3><p>Click the cards to inspect what leadership should expect from a trained VA.</p></div></div>
+      <div class="grid-4" id="assessCards">
+        <button class="assess-card" data-assess="accuracy"><span class="tag">Readiness 1</span><h4>Accuracy discipline</h4><p>Can the VA follow the checklist and catch errors?</p></button>
+        <button class="assess-card" data-assess="verification"><span class="tag">Readiness 2</span><h4>Verification quality</h4><p>Can the VA correctly identify valid vs invalid completion?</p></button>
+        <button class="assess-card" data-assess="ecosystem"><span class="tag">Readiness 3</span><h4>System awareness</h4><p>Does the VA know where work belongs in each platform?</p></button>
+        <button class="assess-card" data-assess="reporting"><span class="tag">Readiness 4</span><h4>Reporting quality</h4><p>Can the VA produce useful leadership visibility?</p></button>
       </div>
+      <div class="inspector" id="assessInspector" style="margin-top:16px;"><h4>Leadership readiness inspector</h4><p>Click a card above to inspect the expected outcome.</p></div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-head"><div><h3>Assessment framework</h3><p>How NPPW can evaluate training success.</p></div></div>
-      <div class="kpi-grid">
-        <div class="kpi"><h4>Accuracy score</h4><p>Measure how often the trainee catches errors and completes the checklist correctly.</p></div>
-        <div class="kpi"><h4>Verification quality</h4><p>Review whether the trainee classifies tickets correctly and uses escalation appropriately.</p></div>
-        <div class="kpi"><h4>Data transfer quality</h4><p>Check if the trainee correctly handles field mapping and exception management.</p></div>
-        <div class="kpi"><h4>Reporting quality</h4><p>Evaluate note clarity, issue logs, and management summary usefulness.</p></div>
-      </div>
-    </section>
+    <footer class="footer"><strong>Training note:</strong> This is a separate, standalone page for the NPPW training program. It is designed to be easy to understand for trainees and presentable to the CEO. Use the <a href="nppw_system_visual_workflow.html" style="color:#ddfbff;">system workflow page</a> alongside this training page for the full demonstration.</footer>
+  </main>
 
-    <footer class="footer reveal"><strong>Training note:</strong> This page is built to help you present the NPPW training system clearly to leadership while also functioning as a practical onboarding reference for the VA team.</footer>
-  </div>
-  <script src="assets/app.js"></script>
+  <script>
+    const $ = (s, scope=document) => scope.querySelector(s);
+    const $$ = (s, scope=document) => Array.from(scope.querySelectorAll(s));
+
+    const modules = [
+      {title:'1. Attention to Detail & Accuracy Training', body:'This is the critical foundation module. It teaches data accuracy drills, before/after validation exercises, a double-check protocol system, and work order review simulations.', tags:['Critical foundation','Error spotting','Double-check discipline']},
+      {title:'2. ServiceChannel Work Order Management Training', body:'The VA learns the work order lifecycle from create → dispatch → complete → close, position 1 vendor logic, ticket updates, photo/timestamp rules, and handling incomplete jobs.', tags:['Lifecycle','Ticket updates','Missing check-in handling']},
+      {title:'3. Data Transfer & Multi-System Operations Training', body:'This teaches cross-system data mapping, duplicate prevention, SOP-based flow, and which information belongs in each platform.', tags:['Cross-system mapping','Prevent duplicates','System role clarity']},
+      {title:'4. Vendor Verification & Compliance', body:'This module covers valid vs invalid completion, time-on-site validation rules, photo compliance, red flags, and escalation workflow for non-compliance.', tags:['Time validation','Photo compliance','Escalation']},
+      {title:'5. Communication & Phone Operations Training', body:'The VA practices professional call handling scripts, vendor communication standards, ticket update formatting, escalation language, and logging phone calls into systems.', tags:['Phone training','Scripts','Logging call outcomes']},
+      {title:'6. Checklist & SOP Discipline Training', body:'The trainee learns step-by-step checklist execution, task completion verification, and a no-step-skipping mindset.', tags:['Checklist discipline','Standard workflow','Consistency']},
+      {title:'7. System Ecosystem Awareness Training', body:'The VA learns how ServiceChannel, Jobber, Acuity, and internal tools connect, including system purpose mapping, data flow, risks, and boundaries.', tags:['Systems connection','Risk awareness','Boundaries']},
+      {title:'8. Reporting & Documentation Training', body:'The trainee learns daily and weekly reporting structures, issue logs, performance summaries, and escalation documentation standards.', tags:['Daily reporting','Issue tracking','Leadership visibility']},
+      {title:'9. Marketing & Branding Support Training', body:'The VA learns basic SEO principles, Google Business Profile updates, service consistency, simple content updates, and brand tone alignment.', tags:['SEO basics','GBP updates','Brand consistency']}
+    ];
+    const moduleGrid = $('#moduleGrid');
+    modules.forEach((m,i)=>{
+      const el = document.createElement('button');
+      el.className = 'module';
+      el.innerHTML = `<span class="tag">Module ${i+1}</span><h4>${m.title}</h4><p>${m.body.slice(0,100)}...</p>`;
+      el.addEventListener('click', ()=> $('#moduleInspector').innerHTML = `<h4>${m.title}</h4><p>${m.body}</p><div class="badge-row">${m.tags.map(t=>`<span class="badge">${t}</span>`).join('')}</div>`);
+      moduleGrid.appendChild(el);
+    });
+
+    const roadmap = [
+      'NPPW business overview and VA role', 'Accuracy and double-check drills', 'System ecosystem overview', 'Work order lifecycle', 'Checklist and SOP workshop',
+      'ServiceChannel ticket management', 'Photo and timestamp verification', 'Vendor compliance and red flags', 'Escalation handling', 'Phone operations and scripts',
+      'Acuity → Jobber data transfer', 'Reporting and issue logs', 'End-to-end process simulation', 'Supervised live-practice queue', 'Final assessment and sign-off'
+    ];
+    const roadmapGrid = $('#roadmapGrid');
+    const done = new Set();
+    function renderProgress(){ $('#progressLabel').textContent = `${done.size} / 15 complete`; $('#progressFill').style.width = `${(done.size/15)*100}%`; }
+    roadmap.forEach((day,idx)=>{
+      const el = document.createElement('button');
+      el.className='day-card';
+      el.innerHTML = `<span class="tag">Day ${idx+1}</span><h4>${day}</h4><p>Click to mark this day complete.</p>`;
+      el.addEventListener('click', ()=>{ done.has(idx) ? done.delete(idx) : done.add(idx); el.style.borderColor = done.has(idx) ? 'rgba(99,221,158,.45)' : 'rgba(255,255,255,.12)'; el.style.background = done.has(idx) ? 'rgba(99,221,158,.12)' : 'rgba(255,255,255,.05)'; $('p', el).textContent = done.has(idx) ? 'Completed — click again to undo.' : 'Click to mark this day complete.'; renderProgress(); });
+      roadmapGrid.appendChild(el);
+    });
+    renderProgress();
+
+    $$('#focusTabs .tab-btn').forEach(btn => btn.addEventListener('click', ()=>{ $$('#focusTabs .tab-btn').forEach(b=>b.classList.toggle('active', b===btn)); $$('#focusTabs .tab-panel').forEach(p=>p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.tab)); }));
+
+    $('#gradeQuiz').addEventListener('click', ()=>{
+      const ids = ['q1','q2','q3','q4'];
+      const score = ids.reduce((s,id)=> s + Number($('#'+id).value), 0);
+      const pct = Math.round((score / ids.length) * 100);
+      $('#quizConsole').textContent = `[Assessment] Score: ${score}/${ids.length} (${pct}%)\n` + (pct === 100 ? '[Result] Ready for supervised queue support.' : pct >= 75 ? '[Result] Strong understanding, but more coaching is recommended.' : '[Result] More training is needed before live support.');
+      $('#quizResult').innerHTML = `<h4>${pct === 100 ? 'Ready' : pct >= 75 ? 'Almost ready' : 'Needs more training'}</h4><p>The trainee scored ${pct}%. ${pct === 100 ? 'The trainee understands the most important workflow decisions.' : pct >= 75 ? 'The trainee understands most concepts but should review weak areas.' : 'The trainee should revisit the workflow modules before go-live.'}</p>`;
+    });
+    $('#resetQuiz').addEventListener('click', ()=>{ ['q1','q2','q3','q4'].forEach(id=>$('#'+id).selectedIndex = 0); $('#quizConsole').textContent='Assessment ready. Click “Grade Assessment” to see results.'; $('#quizResult').innerHTML='<h4>Readiness result</h4><p>The result will appear here after grading the assessment.</p>'; });
+
+    const assessData = {
+      accuracy:'The VA should consistently catch missing data, incorrect entries, and proof issues before they affect operations.',
+      verification:'The VA should correctly identify suspicious duration, insufficient photos, and incomplete completion evidence.',
+      ecosystem:'The VA should understand the role of Acuity, Jobber, ServiceChannel, and internal tools without confusion.',
+      reporting:'The VA should provide clear issue logs, daily reporting, and escalation documentation that leadership can easily understand.'
+    };
+    $$('#assessCards [data-assess]').forEach(btn => btn.addEventListener('click', ()=> { const txt = assessData[btn.dataset.assess]; $('#assessInspector').innerHTML = `<h4>${$('h4', btn).textContent}</h4><p>${txt}</p>`; }));
+  </script>
 </body>
 </html>
