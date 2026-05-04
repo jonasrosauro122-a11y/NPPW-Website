@@ -3,1309 +3,532 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MPP / NPPW Operations Automation Presentation</title>
+  <title>NPPW System Workflow | VA Operations, Work Order & Automation Support</title>
   <style>
-    :root {
-      --bg: #07111f;
-      --bg2: #0d1b2f;
-      --panel: rgba(255,255,255,0.08);
-      --panel-2: rgba(255,255,255,0.05);
-      --line: rgba(255,255,255,0.12);
-      --text: #f4f7fb;
-      --muted: #b8c5d7;
-      --blue: #59b0ff;
-      --cyan: #63e6ff;
-      --green: #7bf2b4;
-      --yellow: #ffd76a;
-      --red: #ff8d8d;
-      --shadow: 0 22px 60px rgba(0,0,0,0.35);
-      --radius: 24px;
+    :root{
+      --bg:#08111f;
+      --bg2:#0d1a30;
+      --card:rgba(255,255,255,.08);
+      --card-2:rgba(255,255,255,.05);
+      --line:rgba(255,255,255,.12);
+      --text:#f4f8fc;
+      --muted:#b9cbdd;
+      --brand:#29d3c1;
+      --brand2:#2aa0ff;
+      --accent:#8e6bff;
+      --good:#63dd9e;
+      --warn:#ffd36d;
+      --bad:#ff8b8b;
+      --radius:26px;
+      --shadow:0 24px 70px rgba(0,0,0,.35);
     }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
       background:
-        radial-gradient(circle at 10% 20%, rgba(89,176,255,0.18), transparent 0 30%),
-        radial-gradient(circle at 90% 10%, rgba(99,230,255,0.10), transparent 0 22%),
-        radial-gradient(circle at 80% 80%, rgba(123,242,180,0.12), transparent 0 18%),
-        linear-gradient(135deg, var(--bg), #0a1424 40%, var(--bg2));
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    .glow, .glow-2 {
-      position: fixed;
-      inset: auto;
-      pointer-events: none;
-      z-index: 0;
-      filter: blur(80px);
-      opacity: 0.5;
-      border-radius: 999px;
-      animation: floaty 14s ease-in-out infinite;
-    }
-    .glow { width: 280px; height: 280px; background: rgba(89,176,255,0.28); top: 70px; right: -50px; }
-    .glow-2 { width: 250px; height: 250px; background: rgba(123,242,180,0.18); bottom: 60px; left: -30px; animation-delay: -5s; }
-
-    @keyframes floaty {
-      0%,100% { transform: translateY(0) translateX(0); }
-      50% { transform: translateY(16px) translateX(-12px); }
-    }
-
-    .page {
-      position: relative;
-      z-index: 1;
-      width: min(1240px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 24px 0 60px;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 14px;
-      z-index: 30;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      padding: 14px 18px;
-      margin: 8px auto 22px;
-      backdrop-filter: blur(14px);
-      background: rgba(6,14,25,0.72);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .brand-badge {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, rgba(89,176,255,0.24), rgba(123,242,180,0.20));
-      border: 1px solid rgba(255,255,255,0.14);
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 1rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .brand p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-end;
-    }
-
-    .nav a, .pill, .button {
-      text-decoration: none;
-      color: var(--text);
-      font-weight: 600;
-      font-size: 0.92rem;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.05);
-      transition: transform .25s ease, background .25s ease, border-color .25s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nav a:hover, .button:hover, .scenario-btn:hover {
-      transform: translateY(-2px);
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.18);
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.9fr;
-      gap: 24px;
-      align-items: stretch;
-      margin-top: 12px;
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.05));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-copy {
-      padding: 34px;
-      min-height: 470px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 16px;
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 22px;
-      height: 2px;
-      background: linear-gradient(90deg, var(--cyan), transparent);
-    }
-
-    .hero h2 {
-      font-size: clamp(2rem, 4vw, 4rem);
-      line-height: 1.02;
-      margin: 0 0 16px;
-      max-width: 12ch;
-    }
-
-    .hero h2 span {
-      background: linear-gradient(90deg, var(--cyan), var(--green));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .hero p {
-      color: var(--muted);
-      font-size: 1.05rem;
-      line-height: 1.7;
-      max-width: 64ch;
-      margin: 0 0 22px;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .button.primary {
-      background: linear-gradient(90deg, rgba(89,176,255,0.22), rgba(123,242,180,0.18));
-      border-color: rgba(123,242,180,0.26);
-    }
-
-    .hero-side {
-      padding: 22px;
-      display: grid;
-      gap: 16px;
-      align-content: start;
-    }
-
-    .kpi-grid, .grid-3, .grid-2, .grid-4 {
-      display: grid;
-      gap: 16px;
-    }
-
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-    .stat {
-      padding: 18px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-
-    .stat .label {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-
-    .stat .value {
-      font-size: clamp(1.4rem, 3vw, 2.4rem);
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat .sub {
-      font-size: 0.88rem;
-      color: #c9d5e4;
-      line-height: 1.5;
-    }
-
-    .section {
-      margin-top: 24px;
-      padding: 26px;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-end;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-    }
-
-    .section h3 {
-      margin: 0;
-      font-size: clamp(1.4rem, 2.8vw, 2.4rem);
-      line-height: 1.1;
-    }
-
-    .section-head p, .muted {
-      color: var(--muted);
-      line-height: 1.7;
-      margin: 8px 0 0;
-      max-width: 75ch;
-    }
-
-    .feature, .timeline-card, .flow-card, .lesson, .sim-panel, .ceo-card {
-      padding: 20px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.045);
-      border: 1px solid rgba(255,255,255,0.09);
-      min-width: 0;
-    }
-
-    .feature h4, .timeline-card h4, .flow-card h4, .lesson h4, .sim-panel h4, .ceo-card h4 {
-      margin: 0 0 10px;
-      font-size: 1.05rem;
-    }
-
-    .feature p, .timeline-card p, .flow-card p, .lesson p, .sim-panel p, .ceo-card p,
-    .flow-card li, .lesson li, .ceo-card li {
-      color: var(--muted);
-      line-height: 1.7;
-      margin: 0;
-    }
-
-    ul.clean {
-      margin: 12px 0 0;
-      padding-left: 18px;
-    }
-
-    .stack {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .stack .chip {
-      padding: 11px 14px;
-      border-radius: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-
-    .flow-row {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
-      align-items: stretch;
-    }
-
-    .flow-card .tag, .lesson .tag, .ceo-card .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--cyan);
-      margin-bottom: 12px;
-    }
-
-    .flow-card .big {
-      font-size: 1.1rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .arrow {
-      display: grid;
-      place-items: center;
-      color: var(--cyan);
-      font-size: 1.2rem;
-    }
-
-    .timeline {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .timeline-card .day {
-      display: inline-block;
-      margin-bottom: 10px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(99,230,255,0.10);
-      border: 1px solid rgba(99,230,255,0.14);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .lessons {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .lesson .metric {
-      margin-top: 14px;
-      display: inline-flex;
-      padding: 8px 12px;
-      border-radius: 12px;
-      background: rgba(123,242,180,0.08);
-      color: #d8ffe8;
-      font-size: 0.86rem;
-      font-weight: 700;
-      border: 1px solid rgba(123,242,180,0.12);
-    }
-
-    .sop-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 16px;
-    }
-
-    .steps {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .step {
-      display: grid;
-      grid-template-columns: 42px 1fr;
-      gap: 14px;
-      align-items: start;
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .step .num {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      font-weight: 800;
-      background: linear-gradient(135deg, rgba(89,176,255,0.20), rgba(123,242,180,0.20));
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .step strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.98rem;
-    }
-
-    .sim {
-      display: grid;
-      grid-template-columns: 0.95fr 1.05fr;
-      gap: 18px;
-    }
-
-    .field-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .field, .select, textarea {
-      width: 100%;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(7,17,31,0.55);
-      color: var(--text);
-      padding: 12px 14px;
-      outline: none;
-      transition: border-color .2s ease, transform .2s ease;
-      font: inherit;
-    }
-
-    .field:focus, .select:focus, textarea:focus {
-      border-color: rgba(99,230,255,0.55);
-      transform: translateY(-1px);
-    }
-
-    label {
-      display: block;
-      font-size: 0.84rem;
-      color: #dbe6f2;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .scenario-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 16px 0 0;
-    }
-
-    .scenario-btn {
-      cursor: pointer;
-      padding: 10px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-      font: inherit;
-      font-weight: 700;
-      transition: transform .2s ease, background .2s ease;
-    }
-
-    .run-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .button {
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .sim-lanes {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .lane {
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      transform: translateY(8px);
-      opacity: 0.6;
-      transition: transform .35s ease, opacity .35s ease, border-color .35s ease, background .35s ease;
-    }
-
-    .lane.active {
-      opacity: 1;
-      transform: translateY(0);
-      border-color: rgba(99,230,255,0.4);
-      background: rgba(99,230,255,0.08);
-    }
-
-    .lane.success {
-      border-color: rgba(123,242,180,0.35);
-      background: rgba(123,242,180,0.08);
-    }
-
-    .lane.error {
-      border-color: rgba(255,141,141,0.45);
-      background: rgba(255,141,141,0.08);
-    }
-
-    .lane .top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-
-    .lane strong { font-size: 0.98rem; }
-    .lane span { color: var(--muted); font-size: 0.9rem; }
-
-    .audit-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      overflow: hidden;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-
-    .audit-table th, .audit-table td {
-      text-align: left;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 0.92rem;
-    }
-
-    .audit-table th {
-      color: #d8e3ef;
-      background: rgba(255,255,255,0.05);
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 11px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .ok { color: #dfffee; background: rgba(123,242,180,0.10); }
-    .warn { color: #fff4ce; background: rgba(255,215,106,0.10); }
-    .bad { color: #ffdede; background: rgba(255,141,141,0.10); }
-
-    .ceo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .quote {
-      margin-top: 14px;
-      padding: 18px;
-      border-left: 3px solid rgba(99,230,255,0.45);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.04);
-      color: #deebf8;
-      line-height: 1.8;
-    }
-
-    .footer {
-      margin-top: 24px;
-      padding: 22px 26px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
-
-    .reveal.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 1100px) {
-      .hero, .sim, .sop-grid { grid-template-columns: 1fr; }
-      .timeline, .lessons, .ceo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .flow-row { grid-template-columns: 1fr; }
-      .arrow { display: none; }
-    }
-
-    @media (max-width: 760px) {
-      .page { width: min(100% - 20px, 1000px); }
-      .topbar { position: static; }
-      .kpi-grid, .grid-2, .grid-3, .grid-4, .timeline, .lessons, .field-grid, .ceo-grid { grid-template-columns: 1fr; }
-      .hero-copy, .section, .hero-side { padding: 20px; }
-      .hero h2 { max-width: none; }
+        radial-gradient(circle at 10% 10%, rgba(41,211,193,.16), transparent 0 25%),
+        radial-gradient(circle at 92% 12%, rgba(42,160,255,.18), transparent 0 24%),
+        radial-gradient(circle at 55% 95%, rgba(142,107,255,.16), transparent 0 24%),
+        linear-gradient(135deg,var(--bg),var(--bg2) 45%,#0a1526);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.24;
+      background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size:38px 38px; mask-image:linear-gradient(to bottom, rgba(0,0,0,.8), transparent 82%);
+    }
+    .orb{position:fixed; border-radius:999px; filter:blur(90px); opacity:.35; pointer-events:none; z-index:0; animation:floaty 14s ease-in-out infinite}
+    .orb.one{width:260px;height:260px;background:rgba(41,211,193,.22);left:-60px;top:90px}
+    .orb.two{width:220px;height:220px;background:rgba(42,160,255,.16);right:-50px;top:180px;animation-delay:-4s}
+    .orb.three{width:230px;height:230px;background:rgba(142,107,255,.14);left:40%;bottom:-80px;animation-delay:-8s}
+    @keyframes floaty{50%{transform:translateY(20px) translateX(12px)}}
+    @keyframes rise{to{opacity:1;transform:none}}
+    @keyframes pulseGlow{50%{box-shadow:0 0 0 10px rgba(41,211,193,0)}}
+    @keyframes barGrow{from{height:0}}
+    .page{position:relative; z-index:1; width:min(1320px, calc(100% - 24px)); margin:auto; padding:18px 0 54px}
+    .topbar{
+      position:sticky; top:12px; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:16px;
+      padding:14px 18px; border:1px solid var(--line); border-radius:22px; background:rgba(4,10,20,.72); backdrop-filter:blur(18px); box-shadow:var(--shadow)
+    }
+    .brand{display:flex; align-items:center; gap:14px; min-width:0}
+    .brand-mark{width:56px;height:56px; border-radius:18px; display:grid; place-items:center; background:linear-gradient(135deg, rgba(41,211,193,.22), rgba(42,160,255,.18)); border:1px solid rgba(255,255,255,.14)}
+    .brand-mark svg{width:42px;height:42px}
+    .brand-text h1{margin:0; font-size:1rem; letter-spacing:.08em; text-transform:uppercase}
+    .brand-text p{margin:4px 0 0; color:var(--muted); font-size:.9rem}
+    .nav{display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end}
+    .nav a,.btn,.pill-btn,.tab-btn,.scenario-btn,.filter-btn{
+      text-decoration:none; color:var(--text); border:1px solid var(--line); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border-radius:999px; padding:10px 14px; cursor:pointer; transition:.22s ease; display:inline-flex; align-items:center; gap:8px; font-size:.92rem
+    }
+    .nav a:hover,.btn:hover,.pill-btn:hover,.tab-btn:hover,.scenario-btn:hover,.filter-btn:hover{transform:translateY(-2px); border-color:rgba(41,211,193,.36); background:rgba(255,255,255,.1)}
+    .btn.primary,.scenario-btn.active,.tab-btn.active,.filter-btn.active{background:linear-gradient(135deg, rgba(41,211,193,.24), rgba(42,160,255,.18)); border-color:rgba(41,211,193,.35)}
+    .hero{display:grid; grid-template-columns:1.15fr .9fr; gap:18px; margin-top:20px}
+    .card{background:linear-gradient(180deg, var(--card), var(--card-2)); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); position:relative; overflow:hidden}
+    .card::after{content:""; position:absolute; inset:0; background:linear-gradient(130deg, transparent 0 35%, rgba(255,255,255,.05) 50%, transparent 65%); transform:translateX(-120%); pointer-events:none}
+    .card:hover::after{transition:1s linear; transform:translateX(120%)}
+    .pad-xl{padding:36px}.pad{padding:24px}.pad-sm{padding:18px}
+    .eyebrow{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:.82rem; letter-spacing:.05em; text-transform:uppercase; border:1px solid rgba(41,211,193,.25); background:rgba(41,211,193,.1); color:#dffcf8}
+    h1,h2,h3,h4{margin:0}
+    .hero h2{font-size:clamp(2.2rem,3.8vw,4.2rem); line-height:.98; margin:16px 0 14px; letter-spacing:-.04em}
+    .hero h2 .grad{background:linear-gradient(90deg,#fff,var(--brand),var(--brand2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+    p{line-height:1.68; color:var(--muted)}
+    .hero p{font-size:1.03rem}
+    .actions,.tabs,.scenario-row,.filters,.quick-links{display:flex; flex-wrap:wrap; gap:10px}
+    .actions{margin-top:24px}
+    .metric-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+    .metric{padding:18px; min-height:148px; border-radius:22px; border:1px solid var(--line); background:rgba(255,255,255,.05)}
+    .metric strong{display:block; font-size:2rem; margin-bottom:8px}
+    .section{margin-top:22px}
+    .section-head{display:flex; justify-content:space-between; align-items:end; gap:14px; margin-bottom:14px}
+    .section-head p{margin:6px 0 0}
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+    .grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+    .tile,.module,.phase,.recipe,.kpi-card,.step-card,.lane-card,.role-card{
+      background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:22px; padding:18px; transition:.22s ease; cursor:pointer
+    }
+    .tile:hover,.module:hover,.phase:hover,.recipe:hover,.kpi-card:hover,.step-card:hover,.lane-card:hover,.role-card:hover{transform:translateY(-3px); border-color:rgba(41,211,193,.3); background:rgba(255,255,255,.08)}
+    .tag{display:inline-block; margin-bottom:10px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.05); font-size:.78rem; color:#ddf1ff}
+    .inspector,.summary-box,.console-wrap{background:rgba(255,255,255,.045); border:1px solid var(--line); border-radius:22px; padding:18px}
+    .inspector h4,.summary-box h4,.console-wrap h4{margin-bottom:10px}
+    .workflow{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; position:relative}
+    .workflow::before{content:""; position:absolute; left:2%; right:2%; top:50%; height:3px; background:linear-gradient(90deg, rgba(41,211,193,.35), rgba(42,160,255,.35), rgba(142,107,255,.35)); z-index:0; border-radius:999px}
+    .stage{position:relative; z-index:1; min-height:214px; padding:18px; border-radius:24px; border:1px solid var(--line); background:rgba(4,12,24,.88); transition:.25s ease}
+    .stage.active{animation:pulseGlow 1.1s ease; border-color:rgba(41,211,193,.5)}
+    .stage.good{border-color:rgba(99,221,158,.35)} .stage.warn{border-color:rgba(255,211,109,.35)} .stage.bad{border-color:rgba(255,139,139,.35)}
+    .stage-num{width:38px;height:38px; display:grid; place-items:center; border-radius:50%; font-weight:800; margin-bottom:12px; border:1px solid rgba(255,255,255,.14); background:linear-gradient(135deg, rgba(41,211,193,.24), rgba(42,160,255,.18))}
+    .status-pill{position:absolute; left:16px; right:16px; bottom:16px; text-align:center; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.06); padding:8px 10px; font-size:.8rem; color:#dcecf8}
+    .lab{display:grid; grid-template-columns:.95fr 1.05fr; gap:18px}
+    .form-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
+    label.field{display:flex; flex-direction:column; gap:7px; color:#def0fb; font-size:.92rem}
+    input,select,textarea{background:rgba(3,10,18,.75); color:var(--text); border:1px solid var(--line); border-radius:16px; padding:12px 13px; outline:none; transition:.2s ease}
+    textarea{min-height:100px; resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:rgba(41,211,193,.42); box-shadow:0 0 0 4px rgba(41,211,193,.10)}
+    .console{background:#020913; border:1px solid var(--line); border-radius:18px; min-height:325px; max-height:440px; overflow:auto; padding:16px; white-space:pre-wrap; font:.9rem/1.58 ui-monospace,SFMono-Regular,Consolas,monospace; color:#d8e9f7}
+    .queue{display:grid; gap:10px; margin-top:14px}
+    .queue-item{padding:14px; border-radius:16px; border:1px solid var(--line); background:rgba(255,255,255,.04)}
+    .badge-row,.info-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .badge{display:inline-flex; padding:6px 10px; border-radius:999px; font-size:.8rem; border:1px solid var(--line); background:rgba(255,255,255,.05)}
+    .badge.good{background:rgba(99,221,158,.13); color:#e5fff0; border-color:rgba(99,221,158,.2)}
+    .badge.warn{background:rgba(255,211,109,.13); color:#fff3cf; border-color:rgba(255,211,109,.2)}
+    .badge.bad{background:rgba(255,139,139,.13); color:#ffe0e0; border-color:rgba(255,139,139,.2)}
+    .hidden{display:none!important}
+    .swimlane{display:grid; grid-template-columns:200px 1fr; gap:12px; margin-top:12px}
+    .lane-title{padding:18px; border-radius:20px; border:1px solid var(--line); background:rgba(255,255,255,.05); font-weight:800; display:flex; align-items:center}
+    .lane-steps{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+    .bars{display:flex; align-items:end; gap:12px; height:220px; padding:18px; border-radius:22px; border:1px solid var(--line); background:rgba(255,255,255,.035)}
+    .bar{flex:1; min-height:22px; border-radius:16px 16px 8px 8px; background:linear-gradient(180deg, var(--brand), var(--brand2)); position:relative; cursor:pointer; transition:.22s ease; animation:barGrow .7s ease both}
+    .bar:hover{transform:translateY(-4px); filter:brightness(1.1)}
+    .bar span{position:absolute; left:50%; bottom:100%; transform:translateX(-50%); margin-bottom:8px; font-size:.8rem; color:#d8edf9; white-space:nowrap}
+    .bar small{position:absolute; left:50%; transform:translateX(-50%); top:100%; margin-top:8px; font-size:.78rem; color:#cfe1f3}
+    .footer{margin-top:28px; padding:22px; border-radius:24px; border:1px solid var(--line); background:rgba(255,255,255,.045); color:var(--muted)}
+    .reveal{opacity:0; transform:translateY(18px); animation:rise .6s ease forwards}
+    .reveal:nth-child(2){animation-delay:.04s} .reveal:nth-child(3){animation-delay:.08s}
+    .reveal:nth-child(4){animation-delay:.12s}
+    @media (max-width:1180px){
+      .hero,.lab,.grid-4,.grid-3,.grid-2,.workflow{grid-template-columns:1fr}
+      .metric-grid{grid-template-columns:repeat(2,1fr)}
+      .workflow::before{display:none}
+      .swimlane{grid-template-columns:1fr}
+      .lane-steps{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .page{width:min(100% - 16px,1320px)}
+      .topbar{flex-direction:column; align-items:flex-start}
+      .nav{justify-content:flex-start}
+      .pad-xl,.pad{padding:18px}
+      .form-grid,.metric-grid{grid-template-columns:1fr}
+      .hero h2{font-size:2.45rem}
     }
   </style>
 </head>
 <body>
-  <div class="glow"></div>
-  <div class="glow-2"></div>
-
-  <div class="page">
-    <div class="topbar card">
+  <div class="orb one"></div><div class="orb two"></div><div class="orb three"></div>
+  <main class="page">
+    <header class="topbar">
       <div class="brand">
-        <div class="brand-badge">MP</div>
-        <div>
-          <h1>CEO Presentation · Operations Automation</h1>
-          <p>Tailored for MPP / NPPW field services, recurring site work, and admin support scale-up</p>
+        <div class="brand-mark">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="64" y2="64"><stop stop-color="#29D3C1"/><stop offset="1" stop-color="#2AA0FF"/></linearGradient></defs>
+            <rect x="6" y="6" width="52" height="52" rx="16" fill="url(#g)" fill-opacity=".18" stroke="url(#g)"/>
+            <path d="M18 42V22h4.2l8.4 11V22H35v20h-4.1L22.4 30.8V42H18ZM39 42V22h11.2c4.9 0 7.8 2.4 7.8 6.7 0 4.3-2.9 6.8-7.8 6.8h-6V42H39Zm5.2-10.4h5.4c2.1 0 3.3-1 3.3-2.9 0-1.8-1.2-2.8-3.3-2.8h-5.4v5.7Z" fill="url(#g)"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>NPPW System Workflow</h1>
+          <p>Virtual Assistant – Operations, Work Order & Data Support for NPPW</p>
         </div>
       </div>
-      <div class="nav">
-        <a href="#fit">Business Fit</a>
-        <a href="#automation">Automation</a>
-        <a href="#training">Training</a>
-        <a href="#demo">Demo</a>
-        <a href="#ceo">CEO View</a>
-      </div>
-    </div>
+      <nav class="nav">
+        <a href="#visual-flow">Workflow</a>
+        <a href="#automation-lab">Automation Lab</a>
+        <a href="#reporting">Reporting</a>
+        <a href="nppw_training_program.html">Training Program</a>
+      </nav>
+    </header>
 
-    <section class="hero">
-      <div class="hero-copy card reveal">
-        <div>
-          <div class="eyebrow">Built for the owner’s current reality</div>
-          <h2>From <span>manual verification</span> to a scalable VA-supported operation.</h2>
-          <p>
-            This presentation connects the owner’s public website, current admin bottlenecks, and the CEO’s need for a practical support model.
-            It shows how a trained VA team can support ServiceChannel verification, Acuity-to-Jobber intake, Google Sheets reporting,
-            and future web and marketing support without forcing operations to slow down.
-          </p>
-          <div class="stack">
-            <div class="chip">Acuity</div>
-            <div class="chip">Zapier</div>
-            <div class="chip">Jobber</div>
-            <div class="chip">Zapier</div>
-            <div class="chip">Google Sheets</div>
-            <div class="chip">ServiceChannel QA</div>
-          </div>
-        </div>
-        <div class="hero-actions">
-          <a class="button primary" href="#demo">Open interactive demo</a>
-          <a class="button" href="#training">View 15-day training plan</a>
+    <section class="hero reveal">
+      <div class="card pad-xl">
+        <span class="eyebrow">CEO-ready visual operating system</span>
+        <h2>High-level <span class="grad">automation workflow</span> for NPPW operations, work order support, and VA training.</h2>
+        <p>
+          MPP / NPPW handles recurring, high-volume work orders for national retailers such as <strong>Walmart</strong> and <strong>Costco</strong>. This system shows how a Virtual Assistant can reduce admin burden through <strong>work order support</strong>, <strong>ServiceChannel verification</strong>, <strong>Acuity → Jobber data transfer</strong>, <strong>exception handling</strong>, and <strong>reporting visibility</strong>.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="#automation-lab">Run Automation Demo</a>
+          <a class="btn" href="#system-ecosystem">See System Ecosystem</a>
+          <a class="btn" href="nppw_training_program.html">Open Training Page</a>
         </div>
       </div>
-
-      <div class="hero-side card reveal">
-        <div class="kpi-grid">
-          <div class="stat">
-            <div class="label">Verification load</div>
-            <div class="value">4 hrs/day</div>
-            <div class="sub">Focused verification time for one specialist’s location set, based on the current process you described.</div>
-          </div>
-          <div class="stat">
-            <div class="label">Coverage opportunity</div>
-            <div class="value">2:1</div>
-            <div class="sub">A dedicated VA could realistically support roughly two specialists on verification-driven work.</div>
-          </div>
-          <div class="stat">
-            <div class="label">Primary friction</div>
-            <div class="value">Manual</div>
-            <div class="sub">Check-ins, time on site, photos, and re-entry from Acuity into Jobber are slowing operations.</div>
-          </div>
-          <div class="stat">
-            <div class="label">CEO need</div>
-            <div class="value">Scale</div>
-            <div class="sub">Relieve admin overload first, then layer in future website, marketing, and SEO support.</div>
-          </div>
-        </div>
-        <div class="feature">
-          <h4>What this deck demonstrates</h4>
-          <p>
-            A clear operating model for admin support, a training path for VAs, and a live visual explanation of how data should move across tools with checkpoints for compliance and billing readiness.
-          </p>
+      <div class="card pad">
+        <div class="metric-grid">
+          <div class="metric"><strong>4 hrs/day</strong><p>Focused verification time can consume a full block of specialist capacity.</p></div>
+          <div class="metric"><strong>2 specialists</strong><p>One trained VA can potentially support two work order specialists.</p></div>
+          <div class="metric"><strong>6-stage flow</strong><p>From intake to reporting, the whole process is visual and clickable.</p></div>
+          <div class="metric"><strong>9 training modules</strong><p>The separate training page teaches exact operating behavior and SOP discipline.</p></div>
         </div>
       </div>
     </section>
 
-    <section id="fit" class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>Why the owner’s website directly supports this proposal</h3>
-          <p>
-            The website already tells the story of a field-service business with recurring property work, delivery scheduling, and a client operations portal. That means the CEO does not need a theoretical automation deck; the website itself points to the exact operations that need support.
-          </p>
-        </div>
-        <div class="pill">Business-fit analysis</div>
+    <section class="section reveal">
+      <div class="section-head"><div><h3>What this system solves</h3><p>Click each card to inspect the operational value and actual workflow role.</p></div></div>
+      <div class="grid-4" id="problemCards">
+        <button class="tile" data-problem="verification"><span class="tag">Pain Point 1</span><h4>Heavy verification workload</h4><p>Specialists spend too much time reviewing proof of work.</p></button>
+        <button class="tile" data-problem="reentry"><span class="tag">Pain Point 2</span><h4>Manual re-entry</h4><p>Delivery or service data must be moved across tools manually.</p></button>
+        <button class="tile" data-problem="exceptions"><span class="tag">Pain Point 3</span><h4>Exception handling</h4><p>Missing check-ins, missing photos, and incomplete data slow the team.</p></button>
+        <button class="tile" data-problem="visibility"><span class="tag">Pain Point 4</span><h4>Reporting visibility</h4><p>Leadership needs cleaner daily and weekly reporting to see issues faster.</p></button>
       </div>
-
-      <div class="grid-3">
-        <div class="feature">
-          <h4>Recurring field services create repeat verification work</h4>
-          <p>
-            Parking lot sweeping, pressure washing, landscaping, janitorial work, irrigation, and cleanup all create recurring work orders and proof-of-service requirements. That makes verification a repeatable VA process instead of a one-off admin task.
-          </p>
-        </div>
-        <div class="feature">
-          <h4>Website already exposes the scheduling stack</h4>
-          <p>
-            The public site links to schedule delivery pages and a Jobber client hub, which confirms that intake and client operations already rely on digital systems that can be standardized, taught, and monitored.
-          </p>
-        </div>
-        <div class="feature">
-          <h4>CEO need is not only staffing — it is controlled scale</h4>
-          <p>
-            The right support model is a blended one: human VAs for judgment-heavy verification and exception handling, plus automation for intake movement, logging, and handoff visibility.
-          </p>
-        </div>
-      </div>
-
-      <div class="quote">
-        <strong>Translation for the CEO:</strong> the website markets the services, but the backend strain is happening after the sale — verifying subcontractor performance, documenting proof, and transferring bookings into Jobber for execution and invoicing. That is exactly where a trained VA + automation layer creates immediate relief.
+      <div class="inspector" id="problemInspector" style="margin-top:16px;">
+        <h4>System Value Inspector</h4>
+        <p>Click one of the cards above to show the problem, the VA role, and the automation support layer.</p>
       </div>
     </section>
 
-    <section id="automation" class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>Recommended operating model</h3>
-          <p>
-            Keep people where judgment is required, automate where repetition is high, and create a clean audit trail for leadership visibility.
-          </p>
-        </div>
-        <div class="pill">Current state → future state</div>
-      </div>
-
-      <div class="flow-row">
-        <div class="flow-card">
-          <div class="tag">Current pain</div>
-          <div class="big">Acuity booking arrives</div>
-          <p>Delivery request enters through scheduling, but the next step still depends on someone manually retyping the booking.</p>
-        </div>
-        <div class="arrow">→</div>
-        <div class="flow-card">
-          <div class="tag">Automation 1</div>
-          <div class="big">Zapier validates data</div>
-          <p>Check required fields, route by region or service type, and flag missing data before it turns into an operations problem.</p>
-        </div>
-        <div class="arrow">→</div>
-        <div class="flow-card">
-          <div class="tag">Automation 2</div>
-          <div class="big">Jobber record is created</div>
-          <p>Create the right client, request, job, or quote record so drivers and office staff work from one operations system.</p>
-        </div>
-      </div>
-
-      <div class="flow-row" style="margin-top:14px;">
-        <div class="flow-card">
-          <div class="tag">Automation 3</div>
-          <div class="big">Google Sheet audit log</div>
-          <p>Every booking gets a row with timestamp, status, owner, region, and exception notes for visibility and QA.</p>
-        </div>
-        <div class="arrow">→</div>
-        <div class="flow-card">
-          <div class="tag">Human control</div>
-          <div class="big">VA reviews exceptions</div>
-          <p>Only exception cases go to a VA for cleanup: missing phone, duplicate bookings, scheduling conflicts, or unclear address data.</p>
-        </div>
-        <div class="arrow">→</div>
-        <div class="flow-card">
-          <div class="tag">Leadership outcome</div>
-          <div class="big">Faster dispatch & cleaner invoicing</div>
-          <p>Operations moves faster while management has a simple reporting layer to see where work is stuck.</p>
+    <section class="section reveal" id="visual-flow">
+      <div class="section-head"><div><h3>Visual system workflow</h3><p>The full operating path from intake to reporting.</p></div></div>
+      <div class="card pad">
+        <div class="workflow" id="workflowStages">
+          <div class="stage" data-stage="acuity"><div class="stage-num">1</div><h4>Acuity / Intake</h4><p>Booking or request enters through Acuity or office intake.</p><div class="status-pill">Waiting</div></div>
+          <div class="stage" data-stage="validation"><div class="stage-num">2</div><h4>VA Validation Gate</h4><p>Required fields are checked before automation continues.</p><div class="status-pill">Waiting</div></div>
+          <div class="stage" data-stage="zapier"><div class="stage-num">3</div><h4>Zapier Routing</h4><p>Validated data is mapped and moved to Jobber / logs.</p><div class="status-pill">Waiting</div></div>
+          <div class="stage" data-stage="jobber"><div class="stage-num">4</div><h4>Jobber Operations</h4><p>Scheduling or invoicing-prep view is updated.</p><div class="status-pill">Waiting</div></div>
+          <div class="stage" data-stage="verify"><div class="stage-num">5</div><h4>Vendor Verification</h4><p>ServiceChannel proof is reviewed for compliance.</p><div class="status-pill">Waiting</div></div>
+          <div class="stage" data-stage="report"><div class="stage-num">6</div><h4>Reporting & Escalation</h4><p>Status and issues are logged for leadership visibility.</p><div class="status-pill">Waiting</div></div>
         </div>
       </div>
     </section>
 
-    <section class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>ServiceChannel verification: where the VA creates the most value</h3>
-          <p>
-            This is the judgment-heavy desk function that should stay human-led. The VA becomes the quality control checkpoint between subcontractor activity and billing confidence.
-          </p>
-        </div>
-        <div class="pill">Verification desk model</div>
-      </div>
-
-      <div class="sop-grid">
-        <div class="feature">
-          <h4>Verification responsibilities</h4>
-          <div class="steps">
-            <div class="step"><div class="num">1</div><div><strong>Confirm check-in/check-out</strong><span>Verify presence and timing against expected duration for the service type and location pattern.</span></div></div>
-            <div class="step"><div class="num">2</div><div><strong>Validate time on site</strong><span>Catch suspicious short visits, especially for recurring parking lot sweeping or multi-step service visits.</span></div></div>
-            <div class="step"><div class="num">3</div><div><strong>Review photos and attachments</strong><span>Confirm before/after or required evidence exists and is usable for client accountability.</span></div></div>
-            <div class="step"><div class="num">4</div><div><strong>Document exceptions</strong><span>Escalate missing check-ins, insufficient duration, or missing proof so corrections happen before invoicing or disputes.</span></div></div>
-            <div class="step"><div class="num">5</div><div><strong>Protect billing readiness</strong><span>Keep tickets clean enough that specialists spend less time chasing missing information or calling for corrections.</span></div></div>
+    <section class="section reveal" id="automation-lab">
+      <div class="section-head"><div><h3>Automation lab</h3><p>Use this live visual simulator to explain how the workflow actually behaves.</p></div></div>
+      <div class="lab">
+        <div class="card pad">
+          <span class="tag">Interactive request builder</span>
+          <div class="scenario-row" style="margin-bottom:14px;">
+            <button class="scenario-btn active" data-preset="success">Success Path</button>
+            <button class="scenario-btn" data-preset="missing">Missing Data</button>
+            <button class="scenario-btn" data-preset="redflag">Verification Red Flag</button>
+            <button class="scenario-btn" data-preset="sheetfail">Reporting Error</button>
           </div>
-        </div>
-
-        <div class="feature">
-          <h4>Recommended VA queue setup</h4>
-          <ul class="clean">
-            <li>Queue 1: same-day verification for high-volume recurring work</li>
-            <li>Queue 2: exception handling for missing check-ins or missing photos</li>
-            <li>Queue 3: callback / ServiceChannel contact tasks</li>
-            <li>Queue 4: daily leadership summary with unresolved risks</li>
-          </ul>
-          <div class="metric" style="margin-top:14px; display:inline-flex; padding:8px 12px; border-radius:12px; background:rgba(255,215,106,0.08); border:1px solid rgba(255,215,106,0.14); color:#fff1c0; font-weight:700;">Best starting model: 1 VA = verification + exception log + ticket follow-up</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="training" class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>15-day in-depth VA training plan</h3>
-          <p>
-            This is built for demonstration to leadership: practical, role-based, and focused on measurable output instead of tool memorization.
-          </p>
-        </div>
-        <div class="pill">Presentation-ready curriculum</div>
-      </div>
-
-      <div class="timeline">
-        <div class="timeline-card">
-          <div class="day">Days 1–3</div>
-          <h4>Business immersion</h4>
-          <p>Understand MPP / NPPW services, site types, recurring work patterns, service expectations, delivery workflows, and what makes a ticket billing-ready.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="day">Days 4–6</div>
-          <h4>Tool mastery</h4>
-          <p>Acuity intake, Zapier logic, Jobber record types, spreadsheet logging, naming conventions, and workflow ownership points.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="day">Days 7–9</div>
-          <h4>Verification operations</h4>
-          <p>Check-in rules, photo review, time-on-site judgment, escalation writing, exception logs, and ServiceChannel ticket hygiene.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="day">Days 10–12</div>
-          <h4>Scenario handling</h4>
-          <p>Missing data, duplicate bookings, route conflicts, missing proof, suspicious timing, incomplete notes, and client-facing urgency rules.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="day">Days 13–15</div>
-          <h4>Certification & launch</h4>
-          <p>Live simulator drills, QA scoring, shadow support, independent task handling, and daily reporting to operations leadership.</p>
-        </div>
-      </div>
-
-      <div class="lessons" style="margin-top:16px;">
-        <div class="lesson">
-          <div class="tag">Module 1</div>
-          <h4>Acuity intake to Jobber handoff</h4>
-          <ul class="clean">
-            <li>Read and classify booking types</li>
-            <li>Identify mandatory fields before transfer</li>
-            <li>Prevent overbooking through structured routing</li>
-            <li>Know when a human must intervene</li>
-          </ul>
-          <div class="metric">Pass metric: 95% accurate field mapping</div>
-        </div>
-        <div class="lesson">
-          <div class="tag">Module 2</div>
-          <h4>ServiceChannel verification desk</h4>
-          <ul class="clean">
-            <li>Check timestamps and duration logic</li>
-            <li>Validate photos and proof completeness</li>
-            <li>Use exception templates for speed</li>
-            <li>Escalate risk before invoicing delay</li>
-          </ul>
-          <div class="metric">Pass metric: 90% clean QA decisions</div>
-        </div>
-        <div class="lesson">
-          <div class="tag">Module 3</div>
-          <h4>Reporting and leadership visibility</h4>
-          <ul class="clean">
-            <li>Update Google Sheets audit rows</li>
-            <li>Track unresolved exceptions</li>
-            <li>Prepare daily end-of-shift summary</li>
-            <li>Report trends, not just tasks</li>
-          </ul>
-          <div class="metric">Pass metric: daily summary delivered without coaching</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>Standard operating process for the VA</h3>
-          <p>
-            The goal is not just to use tools. The goal is to teach the VA what “good work” looks like at each checkpoint.
-          </p>
-        </div>
-        <div class="pill">Process ownership</div>
-      </div>
-
-      <div class="grid-2">
-        <div class="feature">
-          <h4>Delivery / scheduling SOP</h4>
-          <div class="steps">
-            <div class="step"><div class="num">1</div><div><strong>Review Acuity booking</strong><span>Confirm service type, region, date, client name, phone, and address completeness.</span></div></div>
-            <div class="step"><div class="num">2</div><div><strong>Let Zapier validate</strong><span>Automation checks field presence and routes clean bookings to the correct next action.</span></div></div>
-            <div class="step"><div class="num">3</div><div><strong>Confirm Jobber creation</strong><span>Review whether the correct record was created and whether scheduling details are usable by dispatch.</span></div></div>
-            <div class="step"><div class="num">4</div><div><strong>Log to Google Sheets</strong><span>Audit entry captures status, ownership, and exception notes for future follow-up.</span></div></div>
-            <div class="step"><div class="num">5</div><div><strong>Resolve exceptions</strong><span>Only touch exceptions manually so the VA focuses on edge cases, not every routine entry.</span></div></div>
-          </div>
-        </div>
-        <div class="feature">
-          <h4>Verification SOP</h4>
-          <div class="steps">
-            <div class="step"><div class="num">1</div><div><strong>Open ServiceChannel queue</strong><span>Work by priority, aging, and recurring-service importance.</span></div></div>
-            <div class="step"><div class="num">2</div><div><strong>Check proof requirements</strong><span>Check-ins, check-outs, timestamps, photos, and notes must match service expectations.</span></div></div>
-            <div class="step"><div class="num">3</div><div><strong>Apply duration logic</strong><span>Flag visits that are materially shorter than what that service normally requires.</span></div></div>
-            <div class="step"><div class="num">4</div><div><strong>Update exception log</strong><span>Use standard notes so specialists and leadership can act quickly without re-reading the ticket from scratch.</span></div></div>
-            <div class="step"><div class="num">5</div><div><strong>Close the loop</strong><span>Document outcome, who owns the next step, and when the ticket should be rechecked.</span></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="demo" class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>Interactive demo for the CEO presentation</h3>
-          <p>
-            This simulator shows the exact story you can tell in a meeting: one successful automation path, and two common failure paths where a trained VA adds value.
-          </p>
-        </div>
-        <div class="pill">Slight automation + live explanation</div>
-      </div>
-
-      <div class="sim">
-        <div class="sim-panel">
-          <h4>Automation input</h4>
-          <p>Use the scenario buttons or change the fields manually, then run the workflow.</p>
-
-          <div class="scenario-row">
-            <button class="scenario-btn" data-scenario="success">Success path</button>
-            <button class="scenario-btn" data-scenario="missing-phone">Missing phone</button>
-            <button class="scenario-btn" data-scenario="sheet-fail">Sheet logging issue</button>
-          </div>
-
-          <div class="field-grid">
-            <div>
-              <label for="clientName">Client / Store</label>
-              <input id="clientName" class="field" value="Walmart Store 1842" />
-            </div>
-            <div>
-              <label for="serviceType">Service type</label>
-              <select id="serviceType" class="select">
+          <div class="form-grid">
+            <label class="field">Store / Client<input id="store" value="Walmart Store 4521" /></label>
+            <label class="field">Service Type
+              <select id="serviceType">
                 <option>Parking Lot Sweeping</option>
                 <option>Power Washing</option>
-                <option>Delivery</option>
                 <option>Landscaping</option>
+                <option>Portering</option>
+                <option>Delivery</option>
               </select>
-            </div>
-            <div>
-              <label for="region">Region</label>
-              <select id="region" class="select">
-                <option>Southern California</option>
-                <option>Georgia / North Carolina</option>
-              </select>
-            </div>
-            <div>
-              <label for="contactPhone">Phone</label>
-              <input id="contactPhone" class="field" value="(951) 555-0144" />
-            </div>
-            <div>
-              <label for="scheduleDate">Requested date</label>
-              <input id="scheduleDate" class="field" value="2026-05-06 08:00 AM" />
-            </div>
-            <div>
-              <label for="jobberAction">Jobber action</label>
-              <select id="jobberAction" class="select">
-                <option>Create Job</option>
-                <option>Create Request</option>
-                <option>Create Quote</option>
-                <option>Create Client</option>
-              </select>
-            </div>
+            </label>
+            <label class="field">Date<input id="serviceDate" type="date" /></label>
+            <label class="field">Phone<input id="phone" value="(555) 390-2211" /></label>
+            <label class="field">Time on Site (minutes)<input id="duration" type="number" min="0" value="90" /></label>
+            <label class="field">Photo Count<input id="photos" type="number" min="0" value="3" /></label>
+            <label class="field" style="grid-column:1/-1;">Operational Notes<textarea id="notes">Routine sweeping completed. Before and after photos attached. No access issues.</textarea></label>
           </div>
-
-          <div style="margin-top:12px;">
-            <label for="notes">Exception / notes</label>
-            <textarea id="notes" rows="4">Recurring location. Verify normal visit duration and photo set before final approval.</textarea>
+          <div class="actions">
+            <button class="btn primary" id="runAutomation">Run Full Automation</button>
+            <button class="btn" id="runEscalation">Force Escalation</button>
+            <button class="btn" id="resetAutomation">Reset</button>
           </div>
-
-          <div class="run-row">
-            <button class="button primary" id="runDemo">Run workflow</button>
-            <button class="button" id="resetDemo">Reset</button>
-          </div>
+          <div class="queue" id="queueBoard"></div>
         </div>
-
-        <div class="sim-panel">
-          <h4>Workflow playback</h4>
-          <p id="demoSummary">Ready. Press “Run workflow” to simulate the handoff from Acuity through Zapier, Jobber, and Google Sheets.</p>
-
-          <div class="sim-lanes">
-            <div class="lane" id="lane1">
-              <div class="top"><strong>1. Acuity booking received</strong><span id="lane1text">Awaiting run...</span></div>
-            </div>
-            <div class="lane" id="lane2">
-              <div class="top"><strong>2. Zapier validation</strong><span id="lane2text">Awaiting run...</span></div>
-            </div>
-            <div class="lane" id="lane3">
-              <div class="top"><strong>3. Jobber creation</strong><span id="lane3text">Awaiting run...</span></div>
-            </div>
-            <div class="lane" id="lane4">
-              <div class="top"><strong>4. Google Sheet audit row</strong><span id="lane4text">Awaiting run...</span></div>
-            </div>
-            <div class="lane" id="lane5">
-              <div class="top"><strong>5. VA decision</strong><span id="lane5text">Awaiting run...</span></div>
-            </div>
+        <div class="card pad">
+          <div class="console-wrap">
+            <h4>Live process console</h4>
+            <div class="console" id="console">Ready. Choose a preset or run the automation workflow.</div>
           </div>
-
-          <table class="audit-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Client</th>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Owner</th>
-              </tr>
-            </thead>
-            <tbody id="auditBody">
-              <tr>
-                <td>—</td>
-                <td>—</td>
-                <td>—</td>
-                <td><span class="status-pill warn">Pending</span></td>
-                <td>—</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="summary-box" id="automationSummary" style="margin-top:14px;">
+            <h4>Automation summary</h4>
+            <p>This panel explains the result after each simulation run.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="ceo" class="section card reveal">
-      <div class="section-head">
-        <div>
-          <h3>What the CEO should see immediately</h3>
-          <p>
-            This proposal is not just a staffing request. It is an operating-system upgrade for the back office.
-          </p>
+    <section class="section reveal">
+      <div class="section-head"><div><h3>Detailed flow by lane</h3><p>Each lane shows how human support and automation work together.</p></div></div>
+      <div class="card pad" id="tabSystem">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="intake">Booking & Intake Flow</button>
+          <button class="tab-btn" data-tab="verification">Vendor Verification Flow</button>
+          <button class="tab-btn" data-tab="exception">Exception & Escalation</button>
+          <button class="tab-btn" data-tab="marketing">Marketing Support Flow</button>
         </div>
-        <div class="pill">Leadership summary</div>
-      </div>
-
-      <div class="ceo-grid">
-        <div class="ceo-card">
-          <div class="tag">Need now</div>
-          <h4>Relieve overloaded admin specialists</h4>
-          <ul class="clean">
-            <li>Reduce daily verification burden</li>
-            <li>Stop retyping Acuity bookings into Jobber</li>
-            <li>Create a cleaner exception process</li>
-          </ul>
+        <div class="tab-panel" data-panel="intake" style="margin-top:16px;">
+          <div class="swimlane"><div class="lane-title">Acuity → Jobber</div><div class="lane-steps"><div class="lane-card"><h4>1. Intake received</h4><p>Acuity captures store, service type, date, and contact info.</p></div><div class="lane-card"><h4>2. VA checks fields</h4><p>Phone, address, and booking integrity are validated.</p></div><div class="lane-card"><h4>3. Zapier routes data</h4><p>Clean data is mapped into Jobber fields.</p></div><div class="lane-card"><h4>4. Jobber updates</h4><p>Scheduling and invoicing-prep visibility is created.</p></div></div></div>
         </div>
-        <div class="ceo-card">
-          <div class="tag">Need next</div>
-          <h4>Create scalable process control</h4>
-          <ul class="clean">
-            <li>One source of truth for intake handoff</li>
-            <li>Visible reporting in Google Sheets</li>
-            <li>Reusable SOPs for future hires or VAs</li>
-          </ul>
+        <div class="tab-panel hidden" data-panel="verification" style="margin-top:16px;">
+          <div class="swimlane"><div class="lane-title">ServiceChannel</div><div class="lane-steps"><div class="lane-card"><h4>1. Open work order</h4><p>Confirm site, store number, service date, and vendor.</p></div><div class="lane-card"><h4>2. Check proof</h4><p>Review check-in / check-out, time on site, and photos.</p></div><div class="lane-card"><h4>3. Apply rules</h4><p>Compare duration and photos to compliance expectations.</p></div><div class="lane-card"><h4>4. Decide outcome</h4><p>Mark verified, needs clarification, or escalate.</p></div></div></div>
         </div>
-        <div class="ceo-card">
-          <div class="tag">Need later</div>
-          <h4>Add growth support functions</h4>
-          <ul class="clean">
-            <li>Website refresh and lead capture optimization</li>
-            <li>Marketing / SEO support</li>
-            <li>More search visibility for recurring service lines</li>
-          </ul>
+        <div class="tab-panel hidden" data-panel="exception" style="margin-top:16px;">
+          <div class="swimlane"><div class="lane-title">Exception Queue</div><div class="lane-steps"><div class="lane-card"><h4>1. Issue detected</h4><p>Missing data, missing proof, or suspicious duration.</p></div><div class="lane-card"><h4>2. Flow pauses</h4><p>Bad data is blocked from continuing downstream.</p></div><div class="lane-card"><h4>3. Notify & document</h4><p>VA logs the issue and follows escalation script.</p></div><div class="lane-card"><h4>4. Resume or escalate</h4><p>After correction, continue or escalate to specialist lead.</p></div></div></div>
         </div>
-      </div>
-
-      <div class="grid-2" style="margin-top:16px;">
-        <div class="feature">
-          <h4>Best pilot recommendation</h4>
-          <p>
-            Start with one VA focused on ServiceChannel verification and exception logging, while deploying the Acuity → Zapier → Jobber → Google Sheets workflow for delivery and scheduling transfer. This gives leadership one human relief lever and one automation relief lever at the same time.
-          </p>
-        </div>
-        <div class="feature">
-          <h4>CEO talking point</h4>
-          <p>
-            “We are not replacing operations judgment. We are removing repetitive admin drag, cleaning up proof-of-service, and building a process that supports scale.”
-          </p>
+        <div class="tab-panel hidden" data-panel="marketing" style="margin-top:16px;">
+          <div class="swimlane"><div class="lane-title">Brand & Growth Support</div><div class="lane-steps"><div class="lane-card"><h4>1. Audit</h4><p>Review service descriptions and online listings.</p></div><div class="lane-card"><h4>2. Update</h4><p>Improve GBP, local content, and service consistency.</p></div><div class="lane-card"><h4>3. Track changes</h4><p>Maintain update log and approval needs.</p></div><div class="lane-card"><h4>4. Report impact</h4><p>Show completed updates and visibility opportunities.</p></div></div></div>
         </div>
       </div>
     </section>
 
-    <div class="footer card reveal">
-      Presentation website prepared for executive demonstration · Single-file HTML · No build tools required
-    </div>
-  </div>
+    <section class="section reveal" id="system-ecosystem">
+      <div class="section-head"><div><h3>System ecosystem awareness</h3><p>This is one of the most important visual training areas because the VA must understand how platforms connect.</p></div></div>
+      <div class="grid-4">
+        <div class="step-card"><span class="tag">System 1</span><h4>ServiceChannel</h4><p>Operations verification environment. Used for ticket management, proof review, and compliance status.</p></div>
+        <div class="step-card"><span class="tag">System 2</span><h4>Jobber</h4><p>Operations execution layer for scheduling visibility and invoicing preparation.</p></div>
+        <div class="step-card"><span class="tag">System 3</span><h4>Acuity</h4><p>Intake / booking source. Useful, but requires awareness of incomplete data or booking limitations.</p></div>
+        <div class="step-card"><span class="tag">System 4</span><h4>Internal Tools</h4><p>Google Sheets or internal dashboards are used for issue tracking, escalation logs, and leadership visibility.</p></div>
+      </div>
+      <div class="inspector" style="margin-top:16px;">
+        <h4>Why this matters</h4>
+        <p>The VA must know <strong>which platform starts the work</strong>, <strong>which platform manages operations</strong>, <strong>which platform verifies proof</strong>, and <strong>which platform reports the final result</strong>. This avoids duplicate work and prevents system confusion.</p>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head"><div><h3>Automation recipes</h3><p>These are specific automations NPPW can demonstrate and later implement.</p></div></div>
+      <div class="grid-2" id="recipeCards">
+        <button class="recipe" data-recipe="recipe1"><span class="tag">Recipe 1</span><h4>Acuity → Jobber job creation</h4><p>Automate clean bookings into operational jobs.</p></button>
+        <button class="recipe" data-recipe="recipe2"><span class="tag">Recipe 2</span><h4>Missing data exception queue</h4><p>Pause automation and route incomplete records for VA review.</p></button>
+        <button class="recipe" data-recipe="recipe3"><span class="tag">Recipe 3</span><h4>Verification classification</h4><p>Support ServiceChannel review with rules for duration and photo count.</p></button>
+        <button class="recipe" data-recipe="recipe4"><span class="tag">Recipe 4</span><h4>Marketing support update log</h4><p>Track website / GBP changes and report visibility tasks.</p></button>
+      </div>
+      <div class="inspector" id="recipeInspector" style="margin-top:16px;">
+        <h4>Recipe inspector</h4>
+        <p>Click a recipe card to reveal the detailed automation logic.</p>
+      </div>
+    </section>
+
+    <section class="section reveal" id="reporting">
+      <div class="section-head"><div><h3>Leadership reporting visibility</h3><p>Click a day to inspect the activity summary.</p></div></div>
+      <div class="grid-2">
+        <div class="card pad">
+          <div class="bars" id="bars"></div>
+        </div>
+        <div class="inspector" id="reportInspector">
+          <h4>Reporting Inspector</h4>
+          <p>Click a bar to show the type of work leadership can monitor: verified tickets, escalations, intake transfers, and issue trends.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head"><div><h3>Suggested implementation phases</h3><p>Click each phase to inspect the rollout logic.</p></div></div>
+      <div class="grid-4" id="phaseCards">
+        <button class="phase" data-phase="phase1"><span class="tag">Phase 1</span><h4>Process capture</h4><p>Map SOPs and exact review rules.</p></button>
+        <button class="phase" data-phase="phase2"><span class="tag">Phase 2</span><h4>VA training</h4><p>Train one VA on intake, verification, and reporting.</p></button>
+        <button class="phase" data-phase="phase3"><span class="tag">Phase 3</span><h4>Pilot deployment</h4><p>Support a selected location group or specialist set.</p></button>
+        <button class="phase" data-phase="phase4"><span class="tag">Phase 4</span><h4>Growth support</h4><p>Add reporting depth, website, and GBP support.</p></button>
+      </div>
+      <div class="inspector" id="phaseInspector" style="margin-top:16px;">
+        <h4>Implementation inspector</h4>
+        <p>Click a phase to see how the rollout should be managed.</p>
+      </div>
+    </section>
+
+    <footer class="footer reveal">
+      <strong>Next step:</strong> Open the dedicated <a href="nppw_training_program.html" style="color:#ddfbff;">NPPW Training Program page</a> for the visual training modules, quizzes, roadmap, and detailed emphasis on <strong>Vendor Verification & Compliance</strong>, <strong>System Ecosystem Awareness</strong>, and <strong>Marketing & Branding Support</strong>.
+    </footer>
+  </main>
 
   <script>
-    const revealItems = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('show');
-      });
-    }, { threshold: 0.08 });
-    revealItems.forEach(item => observer.observe(item));
+    const $ = (s, scope=document) => scope.querySelector(s);
+    const $$ = (s, scope=document) => Array.from(scope.querySelectorAll(s));
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+    const serviceMinimums = { 'Parking Lot Sweeping': 60, 'Power Washing': 90, 'Landscaping': 75, 'Portering': 45, 'Delivery': 30 };
+    let activePreset = 'success';
 
-    const scenarios = {
-      success: {
-        clientName: 'Walmart Store 1842',
-        serviceType: 'Parking Lot Sweeping',
-        region: 'Southern California',
-        contactPhone: '(951) 555-0144',
-        scheduleDate: '2026-05-06 08:00 AM',
-        jobberAction: 'Create Job',
-        notes: 'Recurring site. Standard route. Verification note added for normal photo review.'
-      },
-      'missing-phone': {
-        clientName: 'Ruby Tuesday #224',
-        serviceType: 'Delivery',
-        region: 'Georgia / North Carolina',
-        contactPhone: '',
-        scheduleDate: '2026-05-07 10:30 AM',
-        jobberAction: 'Create Request',
-        notes: 'Booking cannot be fully dispatched without a reachable contact. VA must resolve before handoff.'
-      },
-      'sheet-fail': {
-        clientName: 'Costco Lot 119',
-        serviceType: 'Power Washing',
-        region: 'Southern California',
-        contactPhone: '(951) 555-0198',
-        scheduleDate: '2026-05-08 09:15 AM',
-        jobberAction: 'Create Quote',
-        notes: 'Jobber creation succeeds, but reporting row fails. VA must reconcile audit visibility.'
-      }
+    const problemData = {
+      verification: { title:'Heavy verification workload', body:'A work order specialist can spend hours reviewing check-ins, time on site, photos, and notes. The VA reduces this burden by handling the verification process consistently using a checklist and escalation rules.', tags:['VA reviews ServiceChannel proof','Supports two specialists potential','Improves compliance consistency'] },
+      reentry: { title:'Manual re-entry', body:'Requests that start in Acuity should not require repeated manual entry into Jobber. Automation reduces duplicate work, while the VA only handles exceptions and validation.', tags:['Acuity → Zapier → Jobber','Less manual data entry','Fewer scheduling errors'] },
+      exceptions: { title:'Exception handling', body:'Missing phone numbers, missing check-ins, weak photos, or too-short time on site should route through an exception path. The VA documents and escalates the issue rather than allowing bad data through.', tags:['Exception queue','Escalation workflow','Prevents bad downstream data'] },
+      visibility: { title:'Reporting visibility', body:'Leadership needs daily and weekly visibility into ticket status, vendor performance, operational issues, and training progress. Structured logs and dashboards make this easier.', tags:['Daily / weekly reports','Leadership visibility','Issue tracking'] }
     };
+    $$('#problemCards [data-problem]').forEach(btn => btn.addEventListener('click', () => {
+      const d = problemData[btn.dataset.problem];
+      $('#problemInspector').innerHTML = `<h4>${d.title}</h4><p>${d.body}</p><div class="badge-row">${d.tags.map(t => `<span class="badge">${t}</span>`).join('')}</div>`;
+    }));
 
-    const fields = {
-      clientName: document.getElementById('clientName'),
-      serviceType: document.getElementById('serviceType'),
-      region: document.getElementById('region'),
-      contactPhone: document.getElementById('contactPhone'),
-      scheduleDate: document.getElementById('scheduleDate'),
-      jobberAction: document.getElementById('jobberAction'),
-      notes: document.getElementById('notes')
-    };
-
-    document.querySelectorAll('.scenario-btn').forEach(btn => {
-      btn.addEventListener('click', () => loadScenario(btn.dataset.scenario));
-    });
-
-    function loadScenario(name) {
-      const data = scenarios[name];
-      Object.keys(data).forEach(key => fields[key].value = data[key]);
-      resetLanes();
-      document.getElementById('demoSummary').textContent = `Scenario loaded: ${name.replace('-', ' ')}.`;
+    function setStage(name, mode, text){
+      const el = $(`[data-stage="${name}"]`);
+      if(!el) return;
+      el.classList.remove('active','good','warn','bad');
+      el.classList.add('active');
+      if(mode) el.classList.add(mode);
+      $('.status-pill', el).textContent = text;
+      setTimeout(() => el.classList.remove('active'), 900);
     }
-
-    function resetLanes() {
-      ['lane1','lane2','lane3','lane4','lane5'].forEach(id => {
-        const el = document.getElementById(id);
-        el.className = 'lane';
-      });
-      document.getElementById('lane1text').textContent = 'Awaiting run...';
-      document.getElementById('lane2text').textContent = 'Awaiting run...';
-      document.getElementById('lane3text').textContent = 'Awaiting run...';
-      document.getElementById('lane4text').textContent = 'Awaiting run...';
-      document.getElementById('lane5text').textContent = 'Awaiting run...';
-      document.getElementById('auditBody').innerHTML = `
-        <tr>
-          <td>—</td>
-          <td>—</td>
-          <td>—</td>
-          <td><span class="status-pill warn">Pending</span></td>
-          <td>—</td>
-        </tr>`;
+    function resetStages(){
+      $$('#workflowStages .stage').forEach(el => { el.classList.remove('active','good','warn','bad'); $('.status-pill', el).textContent = 'Waiting'; });
     }
-
-    function activateLane(id, state, text) {
-      const lane = document.getElementById(id);
-      lane.classList.add('active');
-      if (state) lane.classList.add(state);
-      document.getElementById(id + 'text').textContent = text;
+    function appendLog(text){
+      const c = $('#console');
+      c.textContent += text + '\n';
+      c.scrollTop = c.scrollHeight;
     }
-
-    function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+    function resetDemo(){
+      resetStages();
+      $('#console').textContent = 'Ready. Choose a preset or run the automation workflow.';
+      $('#automationSummary').innerHTML = '<h4>Automation summary</h4><p>This panel explains the result after each simulation run.</p>';
+      $('#queueBoard').innerHTML = '';
     }
-
-    async function runDemo() {
-      resetLanes();
-      const clientName = fields.clientName.value.trim() || 'Unknown Client';
-      const serviceType = fields.serviceType.value;
-      const region = fields.region.value;
-      const contactPhone = fields.contactPhone.value.trim();
-      const scheduleDate = fields.scheduleDate.value.trim() || 'No date provided';
-      const jobberAction = fields.jobberAction.value;
-      const notes = fields.notes.value.trim();
-      const summary = document.getElementById('demoSummary');
-      const auditBody = document.getElementById('auditBody');
-
-      summary.textContent = 'Running workflow...';
-      activateLane('lane1', 'success', `${clientName} booked for ${serviceType} on ${scheduleDate}.`);
-      await wait(550);
-
-      const missingPhone = !contactPhone;
-      const sheetFail = clientName.toLowerCase().includes('costco') || notes.toLowerCase().includes('reporting row fails');
-
-      if (missingPhone) {
-        activateLane('lane2', 'error', 'Validation failed: required contact phone is missing.');
-        await wait(550);
-        activateLane('lane3', 'warn', 'Jobber creation paused to avoid bad dispatch data.');
-        await wait(450);
-        activateLane('lane4', 'warn', 'Audit row created with exception status.');
-        await wait(450);
-        activateLane('lane5', 'error', 'VA must contact client / requester, update booking, then rerun transfer.');
-        summary.textContent = 'Failure path: automation protected operations by stopping a bad handoff before it reached dispatch.';
-        auditBody.innerHTML = `
-          <tr>
-            <td>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-            <td>${clientName}</td>
-            <td>${serviceType}</td>
-            <td><span class="status-pill bad">Exception: missing phone</span></td>
-            <td>VA Follow-up</td>
-          </tr>`;
+    function applyPreset(name){
+      activePreset = name;
+      $$('.scenario-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
+      const presets = {
+        success:{store:'Walmart Store 4521', service:'Parking Lot Sweeping', phone:'(555) 390-2211', duration:90, photos:4, notes:'Routine sweeping completed. Before and after photos attached. No access issues.'},
+        missing:{store:'Costco Site 118', service:'Delivery', phone:'', duration:45, photos:2, notes:'Delivery request created, but phone number is missing.'},
+        redflag:{store:'Ruby Tuesday Site 209', service:'Parking Lot Sweeping', phone:'(555) 120-4410', duration:24, photos:1, notes:'Vendor marked complete, but time on site is low and photo proof is weak.'},
+        sheetfail:{store:'Walmart Store 7780', service:'Power Washing', phone:'(555) 902-1818', duration:110, photos:5, notes:'Job completes successfully, but reporting failure will be simulated.'}
+      };
+      const p = presets[name];
+      $('#store').value = p.store; $('#serviceType').value = p.service; $('#phone').value = p.phone; $('#duration').value = p.duration; $('#photos').value = p.photos; $('#notes').value = p.notes;
+    }
+    async function runAutomation(forceEscalation=false){
+      resetDemo();
+      $('#console').textContent = '';
+      const data = {
+        store: $('#store').value.trim(),
+        serviceType: $('#serviceType').value,
+        phone: $('#phone').value.trim(),
+        date: $('#serviceDate').value,
+        duration: Number($('#duration').value || 0),
+        photos: Number($('#photos').value || 0),
+        notes: $('#notes').value.trim()
+      };
+      appendLog('[System] Starting NPPW automation workflow...');
+      await wait(400);
+      setStage('acuity','good','Captured');
+      appendLog(`[Acuity] Request received for ${data.store} • ${data.serviceType}`);
+      await wait(650);
+      setStage('validation','','Checking');
+      appendLog('[VA Validation Gate] Checking required fields, duplicate risk, and schedule integrity...');
+      await wait(700);
+      if(!data.store || !data.phone){
+        setStage('validation','bad','Failed');
+        setStage('zapier','warn','Paused');
+        setStage('report','warn','Issue Logged');
+        appendLog('[Validation Gate] Required data is missing. Flow paused before Jobber.');
+        appendLog('[Exception Queue] Missing-data issue logged for VA follow-up.');
+        $('#queueBoard').innerHTML = `<div class="queue-item"><strong>${data.store || 'Unknown request'}</strong><div class="badge-row"><span class="badge warn">Exception Queue</span><span class="badge">Missing required data</span></div></div>`;
+        $('#automationSummary').innerHTML = '<h4>Exception result</h4><p>This simulation shows why the VA validation gate is critical. Automation should not create downstream records when required intake data is missing.</p>';
         return;
       }
-
-      activateLane('lane2', 'success', `Validated for ${region}. Required fields complete.`);
-      await wait(550);
-      activateLane('lane3', 'success', `${jobberAction} completed successfully in Jobber.`);
-      await wait(550);
-
-      if (sheetFail) {
-        activateLane('lane4', 'error', 'Google Sheets audit log failed to write.');
-        await wait(450);
-        activateLane('lane5', 'warn', 'VA must reconcile reporting manually so leadership still sees the job in the audit log.');
-        summary.textContent = 'Mixed result: operations can continue, but the reporting layer needs VA reconciliation.';
-        auditBody.innerHTML = `
-          <tr>
-            <td>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-            <td>${clientName}</td>
-            <td>${serviceType}</td>
-            <td><span class="status-pill warn">Jobber OK / Sheet failed</span></td>
-            <td>VA Reconcile</td>
-          </tr>`;
+      setStage('validation','good','Approved');
+      appendLog('[Validation Gate] Record approved for automation.');
+      await wait(500);
+      setStage('zapier','','Routing');
+      appendLog('[Zapier] Mapping fields and routing data to Jobber...');
+      await wait(650);
+      setStage('zapier','good','Transferred');
+      appendLog('[Zapier] Payload transferred successfully.');
+      await wait(500);
+      setStage('jobber','','Creating');
+      appendLog('[Jobber] Creating operational job for scheduling and invoicing-prep visibility...');
+      await wait(700);
+      setStage('jobber','good','Created');
+      appendLog('[Jobber] Request / job created successfully.');
+      await wait(500);
+      setStage('verify','','Reviewing');
+      const min = serviceMinimums[data.serviceType] || 60;
+      const pass = !forceEscalation && data.duration >= min && data.photos >= 2;
+      appendLog(`[ServiceChannel] Checking compliance • duration ${data.duration} min vs required ${min}, photos ${data.photos}.`);
+      await wait(700);
+      if(!pass){
+        setStage('verify','bad','Escalated');
+        setStage('report','warn','Escalation Logged');
+        appendLog('[Verification] RED FLAG detected: insufficient proof or suspicious time on site.');
+        appendLog('[Reporting] Escalation row created for specialist review.');
+        $('#queueBoard').innerHTML = `<div class="queue-item"><strong>${data.store}</strong><div class="badge-row"><span class="badge bad">Escalated</span><span class="badge">Time or photo compliance issue</span></div><p style="margin:10px 0 0;">The VA would now follow the escalation workflow and document the issue.</p></div>`;
+        $('#automationSummary').innerHTML = '<h4>Verification escalation</h4><p>The job moved through the system, but the proof review did not meet compliance standards. This demonstrates the human review layer inside the process.</p>';
         return;
       }
-
-      activateLane('lane4', 'success', 'Audit row written successfully with timestamp, owner, and service data.');
-      await wait(450);
-      activateLane('lane5', 'success', 'No manual correction needed. VA only reviews for downstream exceptions or duplicate activity.');
-      summary.textContent = 'Success path: clean booking moved from intake to operations with reporting visibility.';
-      auditBody.innerHTML = `
-        <tr>
-          <td>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-          <td>${clientName}</td>
-          <td>${serviceType}</td>
-          <td><span class="status-pill ok">Transferred successfully</span></td>
-          <td>Automation</td>
-        </tr>`;
+      setStage('verify','good','Verified');
+      appendLog('[Verification] PASS: check-in / time / photos meet the expected threshold.');
+      await wait(500);
+      if(activePreset === 'sheetfail'){
+        setStage('report','warn','Logging Error');
+        appendLog('[Reporting] Google Sheet logging failed. Backup logging and notification are required.');
+        $('#queueBoard').innerHTML = `<div class="queue-item"><strong>${data.store}</strong><div class="badge-row"><span class="badge warn">Reporting Issue</span><span class="badge">Manual backup needed</span></div><p style="margin:10px 0 0;">Operational work is safe, but reporting needs correction.</p></div>`;
+        $('#automationSummary').innerHTML = '<h4>Reporting fallback</h4><p>This scenario shows that the operational record can still succeed even if the reporting layer fails. The VA backup process preserves leadership visibility.</p>';
+      } else {
+        setStage('report','good','Logged');
+        appendLog('[Reporting] Completed / Verified row logged successfully.');
+        $('#queueBoard').innerHTML = `<div class="queue-item"><strong>${data.store}</strong><div class="badge-row"><span class="badge good">Verified</span><span class="badge">Ready for leadership reporting</span></div><p style="margin:10px 0 0;">This work order is complete and visible in reporting.</p></div>`;
+        $('#automationSummary').innerHTML = '<h4>Successful flow</h4><p>Clean intake, successful Jobber creation, compliant proof review, and final reporting were all completed successfully.</p>';
+      }
     }
 
-    document.getElementById('runDemo').addEventListener('click', runDemo);
-    document.getElementById('resetDemo').addEventListener('click', () => {
-      loadScenario('success');
-      document.getElementById('demoSummary').textContent = 'Ready. Press “Run workflow” to simulate the handoff from Acuity through Zapier, Jobber, and Google Sheets.';
-    });
+    $$('.scenario-btn').forEach(btn => btn.addEventListener('click', () => applyPreset(btn.dataset.preset)));
+    $('#runAutomation').addEventListener('click', () => runAutomation(false));
+    $('#runEscalation').addEventListener('click', () => runAutomation(true));
+    $('#resetAutomation').addEventListener('click', resetDemo);
+    $('#serviceDate').value = new Date().toISOString().slice(0,10);
+    applyPreset('success');
+    resetDemo();
 
-    loadScenario('success');
+    $$('#tabSystem .tab-btn').forEach(btn => btn.addEventListener('click', () => {
+      $$('#tabSystem .tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      $$('#tabSystem .tab-panel').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.tab));
+    }));
+
+    const recipeData = {
+      recipe1:{title:'Acuity → Jobber job creation', body:'Trigger a Zapier automation when a new Acuity booking is created. Validate the required fields, then create or update the client and job inside Jobber. Also write a log row to Google Sheets.', tags:['New booking trigger','Field validation','Create Jobber job','Log to Sheet']},
+      recipe2:{title:'Missing data exception queue', body:'If required intake fields such as phone number or address are missing, stop the automation. Route the item to an exception queue, notify the VA, and track the issue until corrected.', tags:['Conditional pause','Exception queue','Notify VA','Resume after correction']},
+      recipe3:{title:'Verification classification support', body:'ServiceChannel proof can be assisted by logic that compares duration and photo count to expected rules. The final decision still belongs to the VA, but rules highlight red flags fast.', tags:['Duration check','Photo compliance','Flag suspicious jobs','Faster review']},
+      recipe4:{title:'Marketing support update log', body:'Create a task board or Sheet log for local SEO and branding work such as Google Business Profile updates, service-description consistency, and content changes for Georgia and North Carolina.', tags:['GBP updates','SEO basics','Content consistency','Weekly report']}
+    };
+    $$('#recipeCards [data-recipe]').forEach(btn => btn.addEventListener('click', () => {
+      const d = recipeData[btn.dataset.recipe];
+      $('#recipeInspector').innerHTML = `<h4>${d.title}</h4><p>${d.body}</p><div class="badge-row">${d.tags.map(t => `<span class="badge">${t}</span>`).join('')}</div>`;
+    }));
+
+    const phaseData = {
+      phase1:{title:'Phase 1 — Process capture', body:'Document exact SOPs for work order entry, ServiceChannel proof review, communication scripts, and escalation steps before assigning the VA to live support.'},
+      phase2:{title:'Phase 2 — VA training', body:'Train the VA on accuracy, ServiceChannel workflow, data transfer, exception handling, and reporting discipline using the dedicated training page.'},
+      phase3:{title:'Phase 3 — Pilot deployment', body:'Assign a limited set of stores or specialists to the VA first. Measure turnaround time, escalation rate, and data quality before expanding.'},
+      phase4:{title:'Phase 4 — Growth support', body:'Once operations support is stable, extend the role to marketing admin, website content support, Google Business Profile updates, and local SEO task tracking.'}
+    };
+    $$('#phaseCards [data-phase]').forEach(btn => btn.addEventListener('click', () => {
+      const d = phaseData[btn.dataset.phase];
+      $('#phaseInspector').innerHTML = `<h4>${d.title}</h4><p>${d.body}</p>`;
+    }));
+
+    const reportDays = [
+      {day:'Mon', value:11, detail:'11 work orders reviewed. 8 verified, 2 pending clarification, 1 escalated.'},
+      {day:'Tue', value:14, detail:'14 tickets processed. Strong intake-to-Jobber flow and only 1 missing-data exception.'},
+      {day:'Wed', value:9, detail:'9 tickets reviewed. Two red flags were detected on time-on-site validation.'},
+      {day:'Thu', value:16, detail:'16 tickets handled. Best productivity day with stable reporting visibility.'},
+      {day:'Fri', value:12, detail:'12 tickets processed. Marketing admin updates also completed for GBP review.'},
+      {day:'Sat', value:7, detail:'Lower volume day focused on issue cleanup and backlog review.'},
+      {day:'Sun', value:10, detail:'10 tickets processed with a clean verification pass rate.'}
+    ];
+    const maxVal = Math.max(...reportDays.map(d => d.value));
+    $('#bars').innerHTML = reportDays.map((d,i) => `<div class="bar" data-bar="${i}" style="height:${(d.value/maxVal)*180}px"><span>${d.value}</span><small>${d.day}</small></div>`).join('');
+    $$('#bars .bar').forEach((bar,i) => bar.addEventListener('click', () => { const d = reportDays[i]; $('#reportInspector').innerHTML = `<h4>${d.day} Reporting Snapshot</h4><p>${d.detail}</p><div class="badge-row"><span class="badge good">Leadership visibility</span><span class="badge">Daily operational reporting</span></div>`; }));
   </script>
 </body>
 </html>
